@@ -1,10 +1,10 @@
 package dev.zux13.finder;
 
-import dev.zux13.map.Coordinate;
-import dev.zux13.map.WorldMap;
+import dev.zux13.board.Coordinate;
+import dev.zux13.board.Board;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface PathFinder {
-    List<Coordinate> findPath(WorldMap worldMap, Coordinate start, Coordinate target);
+    Optional<Coordinate> nextStep(Board map, Coordinate from, Coordinate to);
 }

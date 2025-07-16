@@ -1,45 +1,38 @@
 package dev.zux13.action;
 
-import dev.zux13.config.SimulationConfig;
 import dev.zux13.entity.Entity;
 import dev.zux13.entity.Rock;
 import dev.zux13.entity.Tree;
-import dev.zux13.map.Coordinate;
-import dev.zux13.map.WorldMap;
+import dev.zux13.board.Board;
+import dev.zux13.board.Coordinate;
+import dev.zux13.settings.SimulationSettings;
+import dev.zux13.util.ThreadUtils;
 
-import java.util.Random;
+import java.util.Optional;
 
 public class GenerateAction implements Action {
 
     @Override
-    public void execute(WorldMap worldMap) {
-        int width = worldMap.getWidth();
-        int height = worldMap.getHeight();
-        int totalTiles = width * height;
+    public void execute(Board board, SimulationSettings settings) {
 
-        int rockCount = (int) (totalTiles * SimulationConfig.ROCK_DENSITY);
-        int treeCount = (int) (totalTiles * SimulationConfig.TREE_DENSITY);
+        int totalTiles = board.getWidth() * board.getHeight();
+        int rockCount = (int) (totalTiles * settings.getRockDensity());
+        int treeCount = (int) (totalTiles * settings.getTreeDensity());
 
-        placeRandomEntities(worldMap, new Rock(), rockCount);
-        placeRandomEntities(worldMap, new Tree(), treeCount);
+        placeEntities(board, new Rock(), rockCount);
+        placeEntities(board, new Tree(), treeCount);
+
+        ThreadUtils.sleepSilently(settings.getTickMillis());
     }
 
-    private void placeRandomEntities(WorldMap map, Entity entityPrototype, int count) {
-        Random random = new Random();
+    private void placeEntities(Board board, Entity entityPrototype, int count) {
 
-        int width = map.getWidth();
-        int height = map.getHeight();
-
-        int placed = 0;
-        while (placed < count) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            Coordinate coordinate = new Coordinate(x, y);
-
-            if (map.getEntityAt(coordinate) == null) {
-                map.setEntityAt(coordinate, entityPrototype);
-                placed++;
+        for (int i = 0; i < count; i++) {
+            Optional<Coordinate> optionalCoordinate = board.findRandomEmptyCoordinate();
+            if (optionalCoordinate.isEmpty()) {
+                break;
             }
+            board.setEntityAt(optionalCoordinate.get(), entityPrototype);
         }
     }
 }
