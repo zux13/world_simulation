@@ -1,7 +1,5 @@
 package dev.zux13.settings;
 
-import dev.zux13.theme.ThemeType;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -30,13 +28,8 @@ public class SimulationProperties {
         return props;
     }
 
-    public ThemeType getDefaultTheme() {
-        String value = properties.getProperty("theme.default", "FOREST").toUpperCase();
-        try {
-            return ThemeType.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown theme in properties: " + value, e);
-        }
+    public String getDefaultTheme() {
+        return properties.getProperty("theme.default", "Forest");
     }
 
     public int getBoardWidth() {

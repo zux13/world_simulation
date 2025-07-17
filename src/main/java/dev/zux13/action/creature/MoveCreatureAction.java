@@ -13,6 +13,6 @@ public record MoveCreatureAction(
     @Override
     public Coordinate execute(Board board) {
         board.moveEntity(from, to);
-        return from;
+        return to;
     }
 }

@@ -2,7 +2,6 @@ package dev.zux13.settings;
 
 import dev.zux13.theme.Theme;
 import dev.zux13.theme.ThemeFactory;
-import dev.zux13.theme.ThemeType;
 
 public class SimulationSettingsBuilder {
     private final SimulationProperties properties;
@@ -11,7 +10,7 @@ public class SimulationSettingsBuilder {
 
     private Integer boardWidth;
     private Integer boardHeight;
-    private ThemeType themeType;
+    private String themeName;
 
     public SimulationSettingsBuilder(SimulationProperties properties) {
         this.properties = properties;
@@ -19,7 +18,7 @@ public class SimulationSettingsBuilder {
         this.minHeight = properties.getMinBoardHeight();
         this.boardWidth = properties.getBoardWidth();
         this.boardHeight = properties.getBoardHeight();
-        this.themeType = properties.getDefaultTheme();
+        this.themeName = ThemeFactory.getTheme(properties.getDefaultTheme()).getName();
     }
 
     public SimulationSettingsBuilder setBoardWidth(int width) {
@@ -38,13 +37,13 @@ public class SimulationSettingsBuilder {
         return this;
     }
 
-    public SimulationSettingsBuilder setTheme(ThemeType themeType) {
-        this.themeType = themeType;
+    public SimulationSettingsBuilder setTheme(String themeName) {
+        this.themeName = themeName;
         return this;
     }
 
     public SimulationSettings build() {
-        Theme theme = ThemeFactory.create(themeType);
+        Theme theme = ThemeFactory.getTheme(themeName);
         return new SimulationSettings(boardWidth, boardHeight, theme, properties);
     }
 

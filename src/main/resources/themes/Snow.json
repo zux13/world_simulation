@@ -1,0 +1,22 @@
+{
+  "name": "Snow",
+  "sprites": {
+    "default": "⬜",
+    "herbivore": "🐧",
+    "predator": "🐻‍❄️",
+    "grass": "🐟",
+    "rock": "🧊",
+    "tree": "❄️"
+  },
+  "symbols": {
+    "HEALTH": "❤️",
+    "SPEED": "💨",
+    "VISION": "👁️",
+    "ATTACK": "⚔️",
+    "HUNGER": "🍗",
+    "DEATH": "💀",
+    "SLEEP": "💤",
+    "UP": "🔺",
+    "DOWN": "🔻"
+  }
+}
