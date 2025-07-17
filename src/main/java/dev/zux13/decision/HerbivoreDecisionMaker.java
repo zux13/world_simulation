@@ -30,14 +30,16 @@ public class HerbivoreDecisionMaker implements DecisionMaker {
     }
 
     @Override
-    public void decide(Board board, Coordinate current,  Creature creature) {
+    public void decide(Board board, Coordinate current, Creature creature) {
 
         Optional<CreatureAction> action = tryEscapePredator(board, current, creature)
                 .or(() -> tryEatNeighborGrass(board, current, creature))
                 .or(() -> tryMoveToVisibleGrass(board, current, creature))
                 .or(() -> tryRoam(board, current, creature));
 
-        action.ifPresent(creatureAction -> eventBus.publish(new CreatureActionDecidedEvent(creatureAction)));
+        action.ifPresent(creatureAction -> eventBus.publish(
+                new CreatureActionDecidedEvent(creatureAction, creature))
+        );
     }
 
     private Optional<CreatureAction> tryEscapePredator(Board board, Coordinate current, Creature creature) {
@@ -55,7 +57,7 @@ public class HerbivoreDecisionMaker implements DecisionMaker {
     private Optional<CreatureAction> tryEatNeighborGrass(Board board, Coordinate current, Creature creature) {
         return board.findNeighborGrass(current)
                 .flatMap(grass -> board.getEntityAt(grass)
-                        .map(entity -> new EatCreatureAction(creature, entity, grass)));
+                        .map(entity -> new EatCreatureAction(creature, entity, current, grass)));
     }
 
     private Optional<CreatureAction> tryMoveToVisibleGrass(Board board, Coordinate current, Creature creature) {

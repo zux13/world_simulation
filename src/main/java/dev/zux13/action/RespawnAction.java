@@ -68,6 +68,7 @@ public class RespawnAction implements Action {
                     .maxHunger(settings.getHerbivoreMaxHunger())
                     .hungerDamage(settings.getHerbivoreHungerDamage())
                     .hungerRestore(settings.getHerbivoreHungerRestore())
+                    .healRestore(settings.getHerbivoreHealRestore())
                     .build();
 
             board.setEntityAt(coordinate, herbivore);
@@ -106,6 +107,7 @@ public class RespawnAction implements Action {
                     .maxHunger(settings.getPredatorMaxHunger())
                     .hungerDamage(settings.getPredatorHungerDamage())
                     .hungerRestore(settings.getPredatorHungerRestore())
+                    .healRestore(settings.getPredatorHealRestore())
                     .build();
 
             board.setEntityAt(coordinate, predator);

@@ -33,7 +33,9 @@ public class PredatorDecisionMaker implements DecisionMaker {
                 .or(() -> tryChasePrey(board, current, creature))
                 .or(() -> tryRoam(board, current, creature));
 
-        action.ifPresent(creatureAction -> eventBus.publish(new CreatureActionDecidedEvent(creatureAction)));
+        action.ifPresent(creatureAction -> eventBus.publish(
+                new CreatureActionDecidedEvent(creatureAction, creature))
+        );
     }
 
     private Optional<CreatureAction> tryAttackPrey(Board board, Coordinate current, Predator predator) {
@@ -43,7 +45,7 @@ public class PredatorDecisionMaker implements DecisionMaker {
                         .map(entity -> {
                             Creature prey = (Creature) entity;
                             if (predator.getAttack() >= prey.getCurrentHp()) {
-                                return new EatCreatureAction(predator, prey, coordinate);
+                                return new EatCreatureAction(predator, prey, current, coordinate);
                             } else {
                                 return new AttackCreatureAction(predator, prey, coordinate);
                             }

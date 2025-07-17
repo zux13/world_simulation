@@ -107,8 +107,8 @@ public class SimulationProperties {
         return getInt("creature.herbivore.vision.max", 5);
     }
 
-    public int getHerbivoreHealAmount() {
-        return getInt("creature.herbivore.heal.amount", 10);
+    public int getHerbivoreHealRestore() {
+        return getInt("creature.herbivore.heal.restore", 10);
     }
 
     public int getHerbivoreHungerRestore() {
@@ -147,8 +147,8 @@ public class SimulationProperties {
         return getInt("creature.predator.vision.max", 6);
     }
 
-    public int getPredatorHealAmount() {
-        return getInt("creature.predator.heal.amount", 10);
+    public int getPredatorHealRestore() {
+        return getInt("creature.predator.heal.restore", 10);
     }
 
     public int getPredatorMinAttack() {

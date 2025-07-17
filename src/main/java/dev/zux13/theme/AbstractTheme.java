@@ -40,8 +40,8 @@ public abstract class AbstractTheme implements Theme {
         map.put(EmojiType.HUNGER, "🍗");
         map.put(EmojiType.DEATH, "💀");
         map.put(EmojiType.SLEEP, "💤");
-        map.put(EmojiType.UP, "⬆️");
-        map.put(EmojiType.DOWN, "⬇️");
+        map.put(EmojiType.UP, "\uD83D\uDD3A");
+        map.put(EmojiType.DOWN, "\uD83D\uDD3B");
         return map;
     }
 }

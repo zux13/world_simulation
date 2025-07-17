@@ -22,7 +22,7 @@ public class SimulationSettings {
     private final int herbivoreMaxSpeed;
     private final int herbivoreVisionMin;
     private final int herbivoreVisionMax;
-    private final int herbivoreHealAmount;
+    private final int herbivoreHealRestore;
     private final int herbivoreHungerRestore;
     private final int herbivoreMaxHunger;
     private final int herbivoreHungerDamage;
@@ -33,7 +33,7 @@ public class SimulationSettings {
     private final int predatorMaxSpeed;
     private final int predatorVisionMin;
     private final int predatorVisionMax;
-    private final int predatorHealAmount;
+    private final int predatorHealRestore;
     private final int predatorMinAttack;
     private final int predatorMaxAttack;
     private final int predatorHungerRestore;
@@ -68,7 +68,7 @@ public class SimulationSettings {
         this.herbivoreMaxSpeed = properties.getHerbivoreMaxSpeed();
         this.herbivoreVisionMin = properties.getHerbivoreVisionMin();
         this.herbivoreVisionMax = properties.getHerbivoreVisionMax();
-        this.herbivoreHealAmount = properties.getHerbivoreHealAmount();
+        this.herbivoreHealRestore = properties.getHerbivoreHealRestore();
         this.herbivoreHungerRestore = properties.getHerbivoreHungerRestore();
         this.herbivoreMaxHunger = properties.getHerbivoreMaxHunger();
         this.herbivoreHungerDamage = properties.getHerbivoreHungerDamage();
@@ -79,7 +79,7 @@ public class SimulationSettings {
         this.predatorMaxSpeed = properties.getPredatorMaxSpeed();
         this.predatorVisionMin = properties.getPredatorVisionMin();
         this.predatorVisionMax = properties.getPredatorVisionMax();
-        this.predatorHealAmount = properties.getPredatorHealAmount();
+        this.predatorHealRestore = properties.getPredatorHealRestore();
         this.predatorMinAttack = properties.getPredatorMinAttack();
         this.predatorMaxAttack = properties.getPredatorMaxAttack();
         this.predatorHungerRestore = properties.getPredatorHungerRestore();
@@ -154,8 +154,8 @@ public class SimulationSettings {
         return herbivoreVisionMax;
     }
 
-    public int getHerbivoreHealAmount() {
-        return herbivoreHealAmount;
+    public int getHerbivoreHealRestore() {
+        return herbivoreHealRestore;
     }
 
     public int getHerbivoreHungerRestore() {
@@ -194,8 +194,8 @@ public class SimulationSettings {
         return predatorVisionMax;
     }
 
-    public int getPredatorHealAmount() {
-        return predatorHealAmount;
+    public int getPredatorHealRestore() {
+        return predatorHealRestore;
     }
 
     public int getPredatorMinAttack() {

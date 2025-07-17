@@ -41,7 +41,8 @@ public class SimulationFactory {
                 respawnAction
         };
 
-        new CreatureActionExecutor(board, settings, eventBus);
+        new CreatureActionExecutor(board, eventBus);
+        new HungerManager(board, eventBus);
         new ConsoleRenderer(settings, context, board, logger, settings.getTheme(), eventBus);
 
         return new Simulation(board, context, settings, initActions, turnActions);

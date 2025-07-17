@@ -9,11 +9,12 @@ public abstract class Creature extends Entity {
 
     private final DecisionMaker decisionMaker;
     private final int maxHp;
+    private final int speed;
+    private final int vision;
     private final int maxHunger;
     private final int hungerDamage;
     private final int hungerRestore;
-    private final int speed;
-    private final int vision;
+    private final int healRestore;
     private int currentHp;
     private int currentHunger;
     private int remainingSteps;
@@ -21,18 +22,19 @@ public abstract class Creature extends Entity {
     protected Creature(CreatureBuilder<?> builder) {
         this.decisionMaker = builder.decisionMaker;
         this.maxHp = builder.maxHp;
+        this.speed = builder.speed;
+        this.vision = builder.vision;
         this.maxHunger = builder.maxHunger;
         this.hungerDamage = builder.hungerDamage;
         this.hungerRestore = builder.hungerRestore;
-        this.speed = builder.speed;
-        this.vision = builder.vision;
+        this.healRestore = builder.healRestore;
         this.currentHp = builder.maxHp;
         this.currentHunger = builder.maxHunger;
         this.remainingSteps = builder.speed;
     }
 
-    public void eat(int amount) {
-        this.currentHp = Math.min(this.currentHp + amount, maxHp);
+    public void eat() {
+        this.currentHp = Math.min(this.currentHp + healRestore, maxHp);
         this.currentHunger = Math.min(this.currentHunger + hungerRestore, maxHunger);
     }
 
@@ -83,6 +85,10 @@ public abstract class Creature extends Entity {
         return currentHp;
     }
 
+    public int getHealRestore() {
+        return healRestore;
+    }
+
     public DecisionMaker getDecisionMaker() {
         return decisionMaker;
     }
@@ -92,11 +98,12 @@ public abstract class Creature extends Entity {
     public static abstract class CreatureBuilder<T extends CreatureBuilder<T>> {
         private DecisionMaker decisionMaker;
         private int maxHp;
+        private int speed;
+        private int vision;
         private int maxHunger;
         private int hungerDamage;
         private int hungerRestore;
-        private int speed;
-        private int vision;
+        private int healRestore;
 
         public T decisionMaker(DecisionMaker decisionMaker) {
             this.decisionMaker = decisionMaker;
@@ -105,6 +112,16 @@ public abstract class Creature extends Entity {
 
         public T maxHp(int maxHp) {
             this.maxHp = maxHp;
+            return self();
+        }
+
+        public T speed(int speed) {
+            this.speed = speed;
+            return self();
+        }
+
+        public T vision(int vision) {
+            this.vision = vision;
             return self();
         }
 
@@ -123,13 +140,8 @@ public abstract class Creature extends Entity {
             return self();
         }
 
-        public T speed(int speed) {
-            this.speed = speed;
-            return self();
-        }
-
-        public T vision(int vision) {
-            this.vision = vision;
+        public T healRestore(int healRestore) {
+            this.healRestore = healRestore;
             return self();
         }
 

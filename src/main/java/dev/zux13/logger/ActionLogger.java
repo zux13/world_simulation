@@ -8,9 +8,7 @@ import dev.zux13.entity.creature.Creature;
 import dev.zux13.entity.creature.Predator;
 import dev.zux13.event.EventBus;
 import dev.zux13.event.Priority;
-import dev.zux13.event.events.CreatureActionDecidedEvent;
-import dev.zux13.event.events.CreatureSpawnedEvent;
-import dev.zux13.event.events.GrassSpawnedEvent;
+import dev.zux13.event.events.*;
 import dev.zux13.theme.EmojiType;
 import dev.zux13.theme.Theme;
 
@@ -34,6 +32,8 @@ public class ActionLogger implements LogProvider {
         eventBus.subscribe(GrassSpawnedEvent.class, this::onGrassSpawned, Priority.NORMAL);
         eventBus.subscribe(CreatureSpawnedEvent.class, this::onCreatureSpawned, Priority.NORMAL);
         eventBus.subscribe(CreatureActionDecidedEvent.class, this::onCreatureActionDecided, Priority.NORMAL);
+        eventBus.subscribe(CreatureIsStarvingEvent.class, this::onCreatureIsStarving, Priority.NORMAL);
+        eventBus.subscribe(CreatureDiedOfHungerEvent.class, this::onCreatureDiedOfHunger, Priority.NORMAL);
     }
 
     private void onCreatureActionDecided(CreatureActionDecidedEvent event) {
@@ -50,19 +50,29 @@ public class ActionLogger implements LogProvider {
             return String.format("%s %s %s —> %s", sprite, moveType.getDescription(), from, to);
         }
 
-        if (action instanceof EatCreatureAction(Creature creature, Entity target, Coordinate coordinate)) {
+        if (action instanceof EatCreatureAction(Creature creature, Entity target, Coordinate current, Coordinate coordinate)) {
             String creatureSprite = theme.getSprite(creature);
             String targetSprite = theme.getSprite(target);
-            return String.format("%s eats %s —> %s", creatureSprite, targetSprite, coordinate);
+            return "%s eats %s | %d%s%s —> %s".formatted(
+                    creatureSprite,
+                    targetSprite,
+                    creature.getHealRestore(),
+                    theme.getSymbol(EmojiType.HEALTH),
+                    theme.getSymbol(EmojiType.UP),
+                    coordinate
+            );
         }
 
         if (action instanceof AttackCreatureAction(Predator predator, Creature target, Coordinate coordinate)) {
             String predatorSprite = theme.getSprite(predator);
             String targetSprite = theme.getSprite(target);
-            return String.format("%s %s %s —> %s",
+            return String.format("%s %s %s | %d%s%s —> %s",
                     predatorSprite,
                     theme.getSymbol(EmojiType.ATTACK),
                     targetSprite,
+                    predator.getAttack(),
+                    theme.getSymbol(EmojiType.HEALTH),
+                    theme.getSymbol(EmojiType.DOWN),
                     coordinate
             );
         }
@@ -80,6 +90,25 @@ public class ActionLogger implements LogProvider {
         log(String.format("%s —> %s",
                 formatCreatureStats(event.creature()),
                 event.coordinate()));
+    }
+
+    private void onCreatureIsStarving(CreatureIsStarvingEvent event) {
+        log("%s starves %s%s -> %s".formatted(
+                theme.getSprite(event.creature()),
+                theme.getSymbol(EmojiType.HUNGER),
+                theme.getSymbol(EmojiType.DOWN),
+                event.coordinate()
+        ));
+    }
+
+    private void onCreatureDiedOfHunger(CreatureDiedOfHungerEvent event) {
+        log("%s %s %s%s -> %s".formatted(
+                theme.getSprite(event.creature()),
+                theme.getSymbol(EmojiType.DEATH),
+                theme.getSymbol(EmojiType.HUNGER),
+                theme.getSymbol(EmojiType.DOWN),
+                event.coordinate()
+        ));
     }
 
     public void log(String message) {

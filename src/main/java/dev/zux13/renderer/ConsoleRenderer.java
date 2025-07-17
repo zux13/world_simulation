@@ -36,6 +36,10 @@ public class ConsoleRenderer implements Renderer {
         this.logger = logger;
         this.board = board;
         this.theme = theme;
+        subscribeToEvents(eventBus);
+    }
+
+    private void subscribeToEvents(EventBus eventBus) {
         eventBus.subscribe(SimulationMoveExecutedEvent.class, this::onMoveExecuted, Priority.LOW);
     }
 
