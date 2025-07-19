@@ -1,13 +1,16 @@
 package dev.zux13.settings;
 
+import dev.zux13.util.ResourceUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class SimulationProperties {
 
-    private final static String DEFAULT_PROPERTIES_FILE = "/simulation.properties";
     private final Properties properties;
 
     public SimulationProperties() {
@@ -20,16 +23,23 @@ public class SimulationProperties {
 
     private static Properties loadDefaultProperties() {
         Properties props = new Properties();
-        try (InputStream in = SimulationProperties.class.getResourceAsStream(DEFAULT_PROPERTIES_FILE)) {
-            props.load(in);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load simulation properties", e);
+        Path propertiesPath = ResourceUtils.getPath("simulation.properties");
+
+        if (Files.exists(propertiesPath)) {
+            try (InputStream in = Files.newInputStream(propertiesPath)) {
+                props.load(in);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Failed to load simulation properties from " + propertiesPath.toAbsolutePath(), e);
+            }
+        } else {
+            System.err.println("WARNING: simulation.properties not found. Using default settings.");
         }
+
         return props;
     }
 
     public String getDefaultTheme() {
-        return properties.getProperty("theme.default", "Forest");
+        return properties.getProperty("theme.default", "Text");
     }
 
     public int getBoardWidth() {
@@ -44,8 +54,16 @@ public class SimulationProperties {
         return getInt("board.size.min.width", 20);
     }
 
+    public int getMaxBoardWidth() {
+        return getInt("board.size.max.width", 80);
+    }
+
     public int getMinBoardHeight() {
         return getInt("board.size.min.height", 10);
+    }
+
+    public int getMaxBoardHeight() {
+        return getInt("board.size.max.height", 80);
     }
 
     public double getRockDensity() {
@@ -77,11 +95,11 @@ public class SimulationProperties {
     }
 
     public int getHerbivoreMinHp() {
-        return getInt("creature.herbivore.hp.min", 20);
+        return getInt("creature.herbivore.hp.min", 5);
     }
 
     public int getHerbivoreMaxHp() {
-        return getInt("creature.herbivore.hp.max", 40);
+        return getInt("creature.herbivore.hp.max", 10);
     }
 
     public int getHerbivoreMinSpeed() {
@@ -101,27 +119,27 @@ public class SimulationProperties {
     }
 
     public int getHerbivoreHealRestore() {
-        return getInt("creature.herbivore.heal.restore", 10);
+        return getInt("creature.herbivore.heal.restore", 3);
     }
 
     public int getHerbivoreHungerRestore() {
-        return getInt("creature.herbivore.hunger.restore", 3);
+        return getInt("creature.herbivore.hunger.restore", 10);
     }
 
     public int getHerbivoreMaxHunger() {
-        return getInt("creature.herbivore.hunger.max", 10);
+        return getInt("creature.herbivore.hunger.max", 20);
     }
 
     public int getHerbivoreHungerDamage() {
-        return getInt("creature.herbivore.hunger.damage", 1);
+        return getInt("creature.herbivore.hunger.damage", 2);
     }
 
     public int getPredatorMinHp() {
-        return getInt("creature.predator.hp.min", 30);
+        return getInt("creature.predator.hp.min", 8);
     }
 
     public int getPredatorMaxHp() {
-        return getInt("creature.predator.hp.max", 50);
+        return getInt("creature.predator.hp.max", 15);
     }
 
     public int getPredatorMinSpeed() {
@@ -141,27 +159,27 @@ public class SimulationProperties {
     }
 
     public int getPredatorHealRestore() {
-        return getInt("creature.predator.heal.restore", 10);
+        return getInt("creature.predator.heal.restore", 3);
     }
 
     public int getPredatorMinAttack() {
-        return getInt("creature.predator.attack.min", 10);
+        return getInt("creature.predator.attack.min", 3);
     }
 
     public int getPredatorMaxAttack() {
-        return getInt("creature.predator.attack.max", 20);
+        return getInt("creature.predator.attack.max", 9);
     }
 
     public int getPredatorHungerRestore() {
-        return getInt("creature.predator.hunger.restore", 5);
+        return getInt("creature.predator.hunger.restore", 20);
     }
 
     public int getPredatorMaxHunger() {
-        return getInt("creature.predator.hunger.max", 10);
+        return getInt("creature.predator.hunger.max", 30);
     }
 
     public int getPredatorHungerDamage() {
-        return getInt("creature.predator.hunger.damage", 1);
+        return getInt("creature.predator.hunger.damage", 2);
     }
 
     public String getRendererDividerChar() {

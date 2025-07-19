@@ -56,4 +56,16 @@ public class JsonTheme implements Theme {
     public String getName() {
         return name;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSpriteMap(Map<String, String> spriteMap) {
+        this.spriteMap = spriteMap;
+    }
+
+    public void setEmojiMap(Map<EmojiType, String> emojiMap) {
+        this.emojiMap = emojiMap;
+    }
 }
