@@ -6,7 +6,6 @@ import dev.zux13.entity.Tree;
 import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;
 import dev.zux13.settings.SimulationSettings;
-import dev.zux13.util.ThreadUtils;
 
 import java.util.Optional;
 
@@ -21,8 +20,6 @@ public class GenerateAction implements Action {
 
         placeEntities(board, new Rock(), rockCount);
         placeEntities(board, new Tree(), treeCount);
-
-        ThreadUtils.sleepSilently(settings.getTickMillis());
     }
 
     private void placeEntities(Board board, Entity entityPrototype, int count) {

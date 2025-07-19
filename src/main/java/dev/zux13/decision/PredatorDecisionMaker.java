@@ -9,33 +9,36 @@ import dev.zux13.event.EventBus;
 import dev.zux13.event.events.CreatureActionDecidedEvent;
 import dev.zux13.finder.PathFinder;
 import dev.zux13.finder.TargetLocator;
-import dev.zux13.util.CoordinateUtils;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class PredatorDecisionMaker implements DecisionMaker {
 
     private final PathFinder pathFinder;
     private final TargetLocator targetLocator;
+    private final RoamingHelper roamingHelper;
     private final EventBus eventBus;
 
-    public PredatorDecisionMaker(PathFinder pathFinder, TargetLocator targetLocator, EventBus eventBus) {
+    public PredatorDecisionMaker(PathFinder pathFinder,
+                                 TargetLocator targetLocator,
+                                 RoamingHelper roamingHelper,
+                                 EventBus eventBus) {
         this.pathFinder = pathFinder;
         this.targetLocator = targetLocator;
+        this.roamingHelper = roamingHelper;
         this.eventBus = eventBus;
     }
 
     @Override
     public void decide(Board board, Coordinate current, Creature creature) {
 
-        Optional<CreatureAction> action = tryAttackPrey(board, current, (Predator) creature)
+        CreatureAction action = tryAttackPrey(board, current, (Predator) creature)
                 .or(() -> tryChasePrey(board, current, creature))
-                .or(() -> tryRoam(board, current, creature));
+                .or(() -> tryRoam(board, current, creature))
+                .orElseGet(() -> new SleepCreatureAction(creature, current));
 
-        action.ifPresent(creatureAction -> eventBus.publish(
-                new CreatureActionDecidedEvent(creatureAction, creature))
-        );
+        eventBus.publish(new CreatureActionDecidedEvent(action, creature));
     }
 
     private Optional<CreatureAction> tryAttackPrey(Board board, Coordinate current, Predator predator) {
@@ -53,17 +56,14 @@ public class PredatorDecisionMaker implements DecisionMaker {
     }
 
     private Optional<CreatureAction> tryChasePrey(Board board, Coordinate current, Creature creature) {
-        Set<Coordinate> visiblePrey = board.getVisibleHerbivores(current, creature.getVision());
+        List<Coordinate> visiblePrey = board.getVisibleHerbivores(current, creature.getVision());
         return targetLocator.findClosest(current, visiblePrey)
                 .flatMap(target -> pathFinder.nextStep(board, current, target))
                 .map(target -> new MoveCreatureAction(creature, current, target, MoveType.CHASE));
     }
 
     private Optional<CreatureAction> tryRoam(Board board, Coordinate current, Creature creature) {
-        Coordinate roamTarget = CoordinateUtils.getRoamTarget(
-                current, board.getWidth(), board.getHeight(), creature.hashCode()
-        );
-        return pathFinder.nextStep(board, current, roamTarget)
+        return roamingHelper.findPersistentRoamTarget(board, current, creature)
                 .map(target -> new MoveCreatureAction(creature, current, target, MoveType.ROAM));
     }
 }

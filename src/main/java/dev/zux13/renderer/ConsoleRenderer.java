@@ -54,7 +54,7 @@ public class ConsoleRenderer implements Renderer {
         int boardWidth = board.getWidth();
         int boardHeight = board.getHeight();
         int charWidth = getEntityRowWidth(boardWidth);
-        int logWidth = getLogWidth();
+        int logWidth = settings.getRendererLogWidth();
         int totalWidth = getTotalWidth(charWidth, logWidth);
 
         List<String> logs = logger.getLogSnapshot();
@@ -96,17 +96,12 @@ public class ConsoleRenderer implements Renderer {
         return boardWidth * CHAR_WIDTH_PER_CELL;
     }
 
-    private int getLogWidth() {
-        return settings.getRendererLogWidth();
-    }
-
     private int getTotalWidth(int entityWidth, int logWidth) {
         return entityWidth + SEPARATOR.length() + logWidth;
     }
 
     private String getDivider(int totalWidth) {
-        String dividerChar = settings.getRendererDividerChar();
-        return dividerChar.repeat(totalWidth);
+        return settings.getRendererDividerChar().repeat(totalWidth);
     }
 
     private String formatTurnTitle(int totalWidth, int turn) {

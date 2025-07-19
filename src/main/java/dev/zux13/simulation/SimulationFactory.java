@@ -2,6 +2,7 @@ package dev.zux13.simulation;
 
 import dev.zux13.action.*;
 import dev.zux13.decision.DecisionMakerFactory;
+import dev.zux13.decision.RoamingHelper;
 import dev.zux13.event.EventBus;
 import dev.zux13.finder.AStarPathFinder;
 import dev.zux13.finder.ManhattanTargetLocator;
@@ -15,7 +16,13 @@ public class SimulationFactory {
     public static Simulation create(SimulationSettings settings) {
 
         EventBus eventBus = new EventBus();
-        ActionLogger logger = new ActionLogger(settings.getBoardHeight(), settings.getTheme(), eventBus);
+        ActionLogger logger = new ActionLogger(
+                settings.getTheme(),
+                settings.getBoardHeight(),
+                settings.getRendererLogWidth(),
+                settings.getRendererDividerChar(),
+                eventBus
+        );
         TurnCounter context = new TurnCounter();
 
         Board board = new Board(settings.getBoardWidth(), settings.getBoardHeight());
@@ -23,6 +30,7 @@ public class SimulationFactory {
         DecisionMakerFactory decisionMakerFactory = new DecisionMakerFactory(
                 new AStarPathFinder(),
                 new ManhattanTargetLocator(),
+                new RoamingHelper(),
                 eventBus
         );
 

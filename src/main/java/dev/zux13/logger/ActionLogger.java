@@ -21,10 +21,14 @@ public class ActionLogger implements LogProvider {
     private final LinkedList<String> logs = new LinkedList<>();
     private final Theme theme;
     private final int maxSize;
+    private final int logWidth;
+    private final String divider;
 
-    public ActionLogger(int maxSize, Theme theme, EventBus eventBus) {
-        this.maxSize = maxSize;
+    public ActionLogger(Theme theme, int maxSize, int logWidth, String divider, EventBus eventBus) {
         this.theme = theme;
+        this.maxSize = maxSize;
+        this.logWidth = logWidth;
+        this.divider = divider;
         subscribeToEvents(eventBus);
     }
 
@@ -36,79 +40,127 @@ public class ActionLogger implements LogProvider {
         eventBus.subscribe(CreatureDiedOfHungerEvent.class, this::onCreatureDiedOfHunger, Priority.NORMAL);
     }
 
-    private void onCreatureActionDecided(CreatureActionDecidedEvent event) {
-        String logMessage = formatActionMessage(event.action());
-        if (logMessage != null) {
-            log(logMessage);
-        }
-    }
-
-    private String formatActionMessage(CreatureAction action) {
-
-        if (action instanceof MoveCreatureAction(Creature creature, Coordinate from, Coordinate to, MoveType moveType)) {
-            String sprite = theme.getSprite(creature);
-            return String.format("%s %s %s —> %s", sprite, moveType.getDescription(), from, to);
-        }
-
-        if (action instanceof EatCreatureAction(Creature creature, Entity target, Coordinate current, Coordinate coordinate)) {
-            String creatureSprite = theme.getSprite(creature);
-            String targetSprite = theme.getSprite(target);
-            return "%s eats %s | %d%s%s —> %s".formatted(
-                    creatureSprite,
-                    targetSprite,
-                    creature.getHealRestore(),
-                    theme.getSymbol(EmojiType.HEALTH),
-                    theme.getSymbol(EmojiType.UP),
-                    coordinate
-            );
-        }
-
-        if (action instanceof AttackCreatureAction(Predator predator, Creature target, Coordinate coordinate)) {
-            String predatorSprite = theme.getSprite(predator);
-            String targetSprite = theme.getSprite(target);
-            return String.format("%s %s %s | %d%s%s —> %s",
-                    predatorSprite,
-                    theme.getSymbol(EmojiType.ATTACK),
-                    targetSprite,
-                    predator.getAttack(),
-                    theme.getSymbol(EmojiType.HEALTH),
-                    theme.getSymbol(EmojiType.DOWN),
-                    coordinate
-            );
-        }
-        return null;
-    }
-
     private void onGrassSpawned(GrassSpawnedEvent event) {
         if (event.count() > 0) {
-            String grassSprite = theme.getSprite(Grass.class);
-            log(String.format("%s x %d grows", grassSprite, event.count()));
+            String message = "%s x %d %s".formatted(
+                    theme.getSprite(Grass.class),
+                    event.count(),
+                    theme.getSymbol(EmojiType.UP)
+            );
+            log(alignCenter(message));
         }
     }
 
     private void onCreatureSpawned(CreatureSpawnedEvent event) {
-        log(String.format("%s —> %s",
-                formatCreatureStats(event.creature()),
-                event.coordinate()));
+        String left = formatCreatureStats(event.creature());
+        String right = "—> %s".formatted(event.coordinate());
+        log(alignRight(left, right));
+    }
+
+    private void onCreatureActionDecided(CreatureActionDecidedEvent event) {
+        String logMessage = formatActionMessage(event.action());
+        if (!logMessage.isEmpty()) {
+            log(logMessage);
+        }
     }
 
     private void onCreatureIsStarving(CreatureIsStarvingEvent event) {
-        log("%s starves %s%s -> %s".formatted(
+        String left = "%s starves %s%s".formatted(
                 theme.getSprite(event.creature()),
                 theme.getSymbol(EmojiType.HUNGER),
-                theme.getSymbol(EmojiType.DOWN),
-                event.coordinate()
-        ));
+                theme.getSymbol(EmojiType.DOWN)
+        );
+        String right = "—> %s".formatted(event.coordinate());
+        log(alignRight(left, right));
     }
 
     private void onCreatureDiedOfHunger(CreatureDiedOfHungerEvent event) {
-        log("%s %s %s%s -> %s".formatted(
+        String left = "%s %s %s%s".formatted(
                 theme.getSprite(event.creature()),
                 theme.getSymbol(EmojiType.DEATH),
                 theme.getSymbol(EmojiType.HUNGER),
-                theme.getSymbol(EmojiType.DOWN),
-                event.coordinate()
-        ));
+                theme.getSymbol(EmojiType.DOWN)
+        );
+        String right = "—> %s".formatted(event.coordinate());
+        log(alignRight(left, right));
+    }
+
+    private String formatActionMessage(CreatureAction action) {
+        if (action instanceof MoveCreatureAction m) {
+            return formatMoveAction(m.creature(), m.from(), m.to(), m.moveType());
+        }
+
+        if (action instanceof EatCreatureAction e) {
+            return formatEatAction(e.creature(), e.food(), e.current());
+        }
+
+        if (action instanceof AttackCreatureAction a) {
+            return formatAttackAction(a.predator(), a.target(), a.current());
+        }
+
+        if (action instanceof SleepCreatureAction s) {
+            return formatSleepAction(s.creature(), s.current());
+        }
+
+        return "";
+    }
+
+    private String formatMoveAction(Creature creature, Coordinate from, Coordinate to, MoveType type) {
+        String left = "%s %s".formatted(theme.getSprite(creature), type.getDescription());
+        String right = "%s —> %s".formatted(from, to);
+        return alignRight(left, right);
+    }
+
+    private String formatEatAction(Creature creature, Entity target, Coordinate coordinate) {
+        String left = "%s eats %s | %d %s%s".formatted(
+                theme.getSprite(creature),
+                theme.getSprite(target),
+                creature.getHealRestore(),
+                theme.getSymbol(EmojiType.HEALTH),
+                theme.getSymbol(EmojiType.UP)
+        );
+        String right = "—> %s".formatted(coordinate);
+        return alignRight(left, right);
+    }
+
+    private String formatAttackAction(Predator predator, Creature target, Coordinate coordinate) {
+        String left = "%s %s %s | %d %s%s".formatted(
+                theme.getSprite(predator),
+                theme.getSymbol(EmojiType.ATTACK),
+                theme.getSprite(target),
+                predator.getAttack(),
+                theme.getSymbol(EmojiType.HEALTH),
+                theme.getSymbol(EmojiType.DOWN)
+        );
+        String right = "—> %s".formatted(coordinate);
+        return alignRight(left, right);
+    }
+
+    private String formatSleepAction(Creature creature, Coordinate coordinate) {
+        String left = "%s sleeps %s".formatted(
+                theme.getSprite(creature),
+                theme.getSymbol(EmojiType.SLEEP)
+        );
+        String right = "—> %s".formatted(coordinate);
+        return alignRight(left, right);
+    }
+
+    private String formatCreatureStats(Creature creature) {
+        String stats = "%s %s:%d %s:%d %s:%d".formatted(
+                theme.getSprite(creature),
+                theme.getSymbol(EmojiType.HEALTH), creature.getMaxHP(),
+                theme.getSymbol(EmojiType.SPEED), creature.getSpeed(),
+                theme.getSymbol(EmojiType.VISION), creature.getVision()
+        );
+
+        if (creature instanceof Predator predator) {
+            stats += " %s:%d".formatted(
+                    theme.getSymbol(EmojiType.ATTACK),
+                    predator.getAttack()
+            );
+        }
+
+        return stats;
     }
 
     public void log(String message) {
@@ -118,22 +170,23 @@ public class ActionLogger implements LogProvider {
         logs.addLast(message);
     }
 
-    private String formatCreatureStats(Creature creature) {
-        StringBuilder sb = new StringBuilder(
-                "%s %s:%d %s:%d %s:%d".formatted(
-                        theme.getSprite(creature),
-                        theme.getSymbol(EmojiType.HEALTH), creature.getMaxHP(),
-                        theme.getSymbol(EmojiType.SPEED), creature.getSpeed(),
-                        theme.getSymbol(EmojiType.VISION), creature.getVision()
-                )
+    private String alignRight(String left, String right) {
+        int spaceCount = Math.max(1, logWidth - left.trim().length() - right.trim().length() - 1);
+        return left.trim() + " ".repeat(spaceCount) + right.trim();
+    }
+
+    private String alignCenter(String text) {
+        int totalPadding = logWidth - text.length();
+        if (totalPadding <= 0) return text;
+
+        int paddingLeft = totalPadding / 2;
+        int paddingRight = totalPadding - paddingLeft;
+
+        return "%s%s%s".formatted(
+                divider.repeat(paddingLeft),
+                text,
+                divider.repeat(paddingRight)
         );
-        if (creature instanceof Predator) {
-            sb.append(" %s:%d".formatted(
-                    theme.getSymbol(EmojiType.ATTACK),
-                    ((Predator) creature).getAttack())
-            );
-        }
-        return sb.toString();
     }
 
     @Override

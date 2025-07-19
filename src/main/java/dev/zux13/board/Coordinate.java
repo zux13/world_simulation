@@ -6,8 +6,8 @@ public record Coordinate(int x, int y) {
         return new Coordinate(x, y);
     }
 
-    @Override
+   @Override
     public String toString() {
-        return "(%s|%s)".formatted(x, y);
+        return "(%02d|%02d)".formatted(x, y);
     }
 }

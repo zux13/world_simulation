@@ -19,26 +19,32 @@ public class AStarPathFinder implements PathFinder {
         if (from.equals(to)) return Optional.empty();
 
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingInt(Node::fCost));
+        Map<Coordinate, Integer> gScores = new HashMap<>();
         Set<Coordinate> closedSet = new HashSet<>();
 
-        openSet.add(new Node(from, null, 0, CoordinateUtils.manhattanDistance(from, to)));
+        Node start = new Node(from, null, 0, CoordinateUtils.diagonalDistance(from, to));
+        openSet.add(start);
+        gScores.put(from, 0);
 
         while (!openSet.isEmpty()) {
             Node current = openSet.poll();
-            if (current.coordinate.equals(to)) {
+            Coordinate currentCoordinate = current.coordinate;
+
+            if (currentCoordinate.equals(to)) {
                 return Optional.of(retraceFirstStep(current));
             }
 
-            closedSet.add(current.coordinate);
+            if (!closedSet.add(currentCoordinate)) continue;
 
-            for (Coordinate neighbor : board.getNeighbors(current.coordinate)) {
-                if (!board.isTileEmpty(neighbor) && !neighbor.equals(to)) continue;
-                if (closedSet.contains(neighbor)) continue;
+            for (Coordinate neighbor : board.getNeighbors(currentCoordinate)) {
+                if ((!board.isTileEmpty(neighbor) && !neighbor.equals(to)) || closedSet.contains(neighbor)) continue;
 
-                int gCost = current.gCost + 1;
-                int hCost = CoordinateUtils.manhattanDistance(neighbor, to);
+                int tentativeG = current.gCost + CoordinateUtils.getMovementCost(currentCoordinate, neighbor);
+                if (tentativeG >= gScores.getOrDefault(neighbor, Integer.MAX_VALUE)) continue;
 
-                openSet.add(new Node(neighbor, current, gCost, hCost));
+                gScores.put(neighbor, tentativeG);
+                int h = CoordinateUtils.diagonalDistance(neighbor, to);
+                openSet.add(new Node(neighbor, current, tentativeG, h));
             }
         }
 

@@ -4,6 +4,7 @@ import dev.zux13.action.creature.CreatureAction;
 import dev.zux13.action.creature.EatCreatureAction;
 import dev.zux13.action.creature.MoveCreatureAction;
 import dev.zux13.action.creature.MoveType;
+import dev.zux13.action.creature.SleepCreatureAction;
 import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.creature.Creature;
@@ -11,44 +12,43 @@ import dev.zux13.event.EventBus;
 import dev.zux13.event.events.CreatureActionDecidedEvent;
 import dev.zux13.finder.PathFinder;
 import dev.zux13.finder.TargetLocator;
-import dev.zux13.util.CoordinateUtils;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class HerbivoreDecisionMaker implements DecisionMaker {
 
     private final PathFinder pathFinder;
     private final TargetLocator targetLocator;
+    private final RoamingHelper roamingHelper;
     private final EventBus eventBus;
 
-    public HerbivoreDecisionMaker(PathFinder pathFinder, TargetLocator targetLocator, EventBus eventBus) {
+    public HerbivoreDecisionMaker(PathFinder pathFinder,
+                                  TargetLocator targetLocator,
+                                  RoamingHelper roamingHelper,
+                                  EventBus eventBus) {
         this.pathFinder = pathFinder;
         this.targetLocator = targetLocator;
+        this.roamingHelper = roamingHelper;
         this.eventBus = eventBus;
     }
 
-    @Override
+   @Override
     public void decide(Board board, Coordinate current, Creature creature) {
-
-        Optional<CreatureAction> action = tryEscapePredator(board, current, creature)
+        CreatureAction action = tryEscapePredator(board, current, creature)
                 .or(() -> tryEatNeighborGrass(board, current, creature))
                 .or(() -> tryMoveToVisibleGrass(board, current, creature))
-                .or(() -> tryRoam(board, current, creature));
+                .or(() -> tryRoam(board, current, creature))
+                .orElseGet(() -> new SleepCreatureAction(creature, current));
 
-        action.ifPresent(creatureAction -> eventBus.publish(
-                new CreatureActionDecidedEvent(creatureAction, creature))
-        );
+        eventBus.publish(new CreatureActionDecidedEvent(action, creature));
     }
 
     private Optional<CreatureAction> tryEscapePredator(Board board, Coordinate current, Creature creature) {
-        Set<Coordinate> visiblePredators = board.getVisiblePredators(current, creature.getVision());
+        List<Coordinate> visiblePredators = board.getVisiblePredators(current, creature.getVision());
         return targetLocator.findClosest(current, visiblePredators)
                 .flatMap(predator -> {
-                    Set<Coordinate> escapeOptions = board.getNeighbors(current).stream()
-                            .filter(board::isTileEmpty)
-                            .collect(Collectors.toSet());
+                    List<Coordinate> escapeOptions = board.findEmptyNeighbors(current);
                     return targetLocator.findFarthest(predator, escapeOptions);
                 })
                 .map(target -> new MoveCreatureAction(creature, current, target, MoveType.FLEE));
@@ -61,17 +61,14 @@ public class HerbivoreDecisionMaker implements DecisionMaker {
     }
 
     private Optional<CreatureAction> tryMoveToVisibleGrass(Board board, Coordinate current, Creature creature) {
-        Set<Coordinate> visibleGrass = board.getVisibleGrass(current, creature.getVision());
+        List<Coordinate> visibleGrass = board.getVisibleGrass(current, creature.getVision());
         return targetLocator.findClosest(current, visibleGrass)
                 .flatMap(target -> pathFinder.nextStep(board, current, target))
                 .map(target -> new MoveCreatureAction(creature, current, target, MoveType.MOVE));
     }
 
     private Optional<CreatureAction> tryRoam(Board board, Coordinate current, Creature creature) {
-        Coordinate roamTarget = CoordinateUtils.getRoamTarget(
-                current, board.getWidth(), board.getHeight(), creature.hashCode()
-        );
-        return pathFinder.nextStep(board, current, roamTarget)
+        return roamingHelper.findPersistentRoamTarget(board, current, creature)
                 .map(target -> new MoveCreatureAction(creature, current, target, MoveType.ROAM));
     }
 }

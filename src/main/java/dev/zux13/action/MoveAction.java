@@ -34,6 +34,7 @@ public class MoveAction implements Action {
                 if (entityOptional.isEmpty()) {
                     continue;
                 }
+
                 Creature creature = (Creature) entityOptional.get();
 
                 if (creature.canMove()) {

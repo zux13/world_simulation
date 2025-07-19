@@ -82,44 +82,34 @@ public class CoordinateUtils {
     }
 
     /**
-     * Вычисляет псевдослучайную "точку блуждания" для существа на основе текущего времени и хэша существа.
-     * Угол и радиус варьируются, чтобы избежать синхронного движения.
+     * Вычисляет диагональное расстояние между двумя координатами.
+     * Используется в A* для 8-направленного движения.
      *
-     * @param current       текущая позиция
-     * @param width         ширина карты
-     * @param height        высота карты
-     * @param creatureHash  уникальный хэш существа
-     * @return координата цели блуждания в пределах карты
+     * @param a первая координата
+     * @param b вторая координата
+     * @return диагональное расстояние
      */
-    public static Coordinate getRoamTarget(Coordinate current, int width, int height, int creatureHash) {
-        long periodMillis = 50;
-        long now = System.currentTimeMillis();
-        long seed = now / periodMillis + creatureHash;
-
-        double baseAngle = (seed % 360) * (Math.PI / 180);
-        double noise = ((creatureHash >> 3) % 30 - 15) * (Math.PI / 180);
-        double angle = baseAngle + noise;
-
-        int radius = 3 + Math.abs(creatureHash % 5);
-
-        int dx = (int) Math.round(Math.cos(angle) * radius);
-        int dy = (int) Math.round(Math.sin(angle) * radius);
-
-        int targetX = clamp(current.x() + dx, 0, width - 1);
-        int targetY = clamp(current.y() + dy, 0, height - 1);
-
-        return Coordinate.of(targetX, targetY);
+    public static int diagonalDistance(Coordinate a, Coordinate b) {
+        int dx = Math.abs(a.x() - b.x());
+        int dy = Math.abs(a.y() - b.y());
+        // D = 10 (стоимость прямого хода), D2 = 14 (стоимость диагонального)
+        return 10 * (dx + dy) + (14 - 2 * 10) * Math.min(dx, dy);
     }
 
     /**
-     * Ограничивает значение в пределах [min, max].
+     * Возвращает стоимость движения между двумя соседними клетками.
      *
-     * @param val значение
-     * @param min нижняя граница
-     * @param max верхняя граница
-     * @return значение, ограниченное заданным диапазоном
+     * @param a первая координата
+     * @param b вторая координата
+     * @return 10 для прямого хода, 14 для диагонального
      */
-    private static int clamp(int val, int min, int max) {
-        return Math.max(min, Math.min(max, val));
+    public static int getMovementCost(Coordinate a, Coordinate b) {
+        int dx = Math.abs(a.x() - b.x());
+        int dy = Math.abs(a.y() - b.y());
+        return (dx == 1 && dy == 1) ? 14 : 10;
+    }
+
+    public static boolean isWithinBounds(int x, int y, int width, int height) {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 }

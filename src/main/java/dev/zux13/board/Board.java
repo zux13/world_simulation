@@ -9,7 +9,6 @@ import dev.zux13.util.CoordinateUtils;
 import dev.zux13.util.RandomUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Board {
 
@@ -55,6 +54,12 @@ public class Board {
         return Optional.of(empty.get(RandomUtils.nextInt(empty.size())));
     }
 
+    public List<Coordinate> findEmptyNeighbors(Coordinate from) {
+        return getNeighbors(from).stream()
+                .filter(this::isTileEmpty)
+                .toList();
+    }
+
     public List<Coordinate> getCreatureCoordinates() {
         return entityMap.entrySet().stream()
                 .filter(e -> e.getValue() instanceof Creature)
@@ -77,15 +82,15 @@ public class Board {
         return findNeighborWith(Grass.class, from);
     }
 
-    public Set<Coordinate> getVisibleGrass(Coordinate from, int radius) {
+    public List<Coordinate> getVisibleGrass(Coordinate from, int radius) {
         return getVisibleEntitiesOfType(Grass.class, from, radius);
     }
 
-    public Set<Coordinate> getVisibleHerbivores(Coordinate from, int radius) {
+    public List<Coordinate> getVisibleHerbivores(Coordinate from, int radius) {
         return getVisibleEntitiesOfType(Herbivore.class, from, radius);
     }
 
-    public Set<Coordinate> getVisiblePredators(Coordinate from, int radius) {
+    public List<Coordinate> getVisiblePredators(Coordinate from, int radius) {
         return getVisibleEntitiesOfType(Predator.class, from, radius);
     }
 
@@ -99,10 +104,11 @@ public class Board {
     }
 
     public void moveEntity(Coordinate from, Coordinate to) {
-        Entity entity = getEntityAt(from)
-                .orElseThrow(() -> new RuntimeException("("));
-        setEntityAt(to, entity);
-        removeEntityAt(from);
+        getEntityAt(from)
+                .ifPresent( entity -> {
+                    setEntityAt(to, entity);
+                    removeEntityAt(from);
+                });
     }
 
     public void setEntityAt(Coordinate coordinate, Entity entity) {
@@ -135,25 +141,32 @@ public class Board {
                 .findFirst();
     }
 
-    private Set<Coordinate> getVisibleEntitiesOfType(Class<? extends Entity> type, Coordinate from, int radius) {
-        return getCoordinatesBy(type).stream()
-                .filter(c -> CoordinateUtils.isWithinRadius(from, c, radius))
-                .collect(Collectors.toSet());
-    }
+    private List<Coordinate> getVisibleEntitiesOfType(Class<? extends Entity> type, Coordinate from, int radius) {
+        List<Coordinate> result = new ArrayList<>();
+        int fromX = from.x();
+        int fromY = from.y();
 
-    private Set<Coordinate> getCoordinatesBy(Class<? extends Entity> type) {
-        Set<Coordinate> result = new HashSet<>();
-        for (Map.Entry<Coordinate, Entity> entry : entityMap.entrySet()) {
-            if (type.isInstance(entry.getValue())) {
-                result.add(entry.getKey());
+        for (int x = fromX - radius; x <= fromX + radius; x++) {
+            for (int y = fromY - radius; y <= fromY + radius; y++) {
+                if (x < 0 || x >= width || y < 0 || y >= height) {
+                    continue;
+                }
+
+                Coordinate current = Coordinate.of(x, y);
+                if (!CoordinateUtils.isWithinRadius(from, current, radius)) {
+                    continue;
+                }
+
+                getEntityAt(current)
+                        .filter(type::isInstance)
+                        .ifPresent(entity -> result.add(current));
             }
         }
         return result;
     }
 
     private boolean isInBounds(Coordinate coordinate) {
-        return coordinate.x() >= 0 && coordinate.x() < width &&
-                coordinate.y() >= 0 && coordinate.y() < height;
+        return CoordinateUtils.isWithinBounds(coordinate.x(), coordinate.y(), width, height);
     }
 
     private void validate(Coordinate coordinate) {
