@@ -26,5 +26,3 @@ jobs:
             target/world_simulation-1.0.jar
             external-resources/simulation.properties
             external-resources/themes/*.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
