@@ -2,18 +2,18 @@
   "name": "Desert",
   "sprites": {
     "default": "🟨",
-    "herbivore": "🐿️",
-    "predator": "🐆",
+    "herbivore": "🐫",
+    "predator": "🐍",
     "grass": "🌾",
     "rock": "🟫",
-    "tree": "🌴"
+    "tree": "🌵"
   },
   "symbols": {
     "HEALTH": "❤️",
     "SPEED": "💨",
-    "VISION": "👁️",
-    "ATTACK": "⚔️",
-    "HUNGER": "🍽️",
+    "VISION": "👀",
+    "ATTACK": "💥",
+    "HUNGER": "🍖",
     "DEATH": "💀",
     "SLEEP": "💤",
     "UP": "🔺",

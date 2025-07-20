@@ -3,10 +3,10 @@
   "sprites": {
     "default": "⬜",
     "herbivore": "🐧",
-    "predator": "🐻‍❄️",
+    "predator": "🐻",
     "grass": "🐟",
     "rock": "🧊",
-    "tree": "❄️"
+    "tree": "🏔️"
   },
   "symbols": {
     "HEALTH": "❤️",
