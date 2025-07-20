@@ -9,6 +9,7 @@ import dev.zux13.util.CoordinateUtils;
 import dev.zux13.util.RandomUtils;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class Board {
 
@@ -52,6 +53,18 @@ public class Board {
         }
 
         return Optional.of(empty.get(RandomUtils.nextInt(empty.size())));
+    }
+
+    public void placeEntityAtRandom(Entity entity, int count) {
+        for (int i = 0; i < count; i++) {
+            findRandomEmptyCoordinate().ifPresent(coordinate -> setEntityAt(coordinate, entity));
+        }
+    }
+
+    public void placeEntityAtRandom(Supplier<Entity> entitySupplier, int count) {
+        for (int i = 0; i < count; i++) {
+            findRandomEmptyCoordinate().ifPresent(coordinate -> setEntityAt(coordinate, entitySupplier.get()));
+        }
     }
 
     public List<Coordinate> findEmptyNeighbors(Coordinate from) {

@@ -1,6 +1,6 @@
 package dev.zux13.simulation;
 
-import dev.zux13.action.*;
+import dev.zux13.action.SimulationTask;
 import dev.zux13.board.Board;
 import dev.zux13.settings.SimulationSettings;
 import dev.zux13.util.ThreadUtils;
@@ -13,8 +13,8 @@ public class Simulation {
     private final TurnCounter turnCounter;
     private final SimulationSettings settings;
 
-    private final Action[] initActions;
-    private final Action[] turnActions;
+    private final SimulationTask[] initTasks;
+    private final SimulationTask[] turnTasks;
 
     private volatile boolean running = true;
     private volatile boolean paused = false;
@@ -26,19 +26,19 @@ public class Simulation {
     public Simulation(Board board,
                       TurnCounter turnCounter,
                       SimulationSettings settings,
-                      Action[] initActions,
-                      Action[] turnActions) {
+                      SimulationTask[] initTasks,
+                      SimulationTask[] turnTasks) {
         this.board = board;
         this.turnCounter = turnCounter;
         this.settings = settings;
-        this.initActions = initActions;
-        this.turnActions = turnActions;
+        this.initTasks = initTasks;
+        this.turnTasks = turnTasks;
     }
 
     public void startSimulation() {
 
-        for (Action action : initActions) {
-            action.execute(board, settings);
+        for (SimulationTask task : initTasks) {
+            task.execute(board, settings);
         }
 
         while (running) {
@@ -55,11 +55,9 @@ public class Simulation {
     }
 
     public void nextTurn() {
-
         turnCounter.nextTurn();
-
-        for (Action action : turnActions) {
-            action.execute(board, settings);
+        for (SimulationTask task : turnTasks) {
+            task.execute(board, settings);
         }
     }
 

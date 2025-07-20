@@ -19,9 +19,7 @@ public class ResourceUtils {
                 return Paths.get("external-resources");
             }
         } catch (Exception e) {
-            System.err.println("Could not determine application base path, falling back to current directory.");
-            e.printStackTrace();
-            return Paths.get(".");
+            throw new IllegalStateException("Could not determine application base path.", e);
         }
     }
 

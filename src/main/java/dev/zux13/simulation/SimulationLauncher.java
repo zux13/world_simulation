@@ -21,7 +21,7 @@ public class SimulationLauncher {
                     new Thread(simulation::startSimulation).start();
                 },
                 () -> {
-                    System.out.println("Bye bye!");
+                    System.out.println("Exiting...");
                     inputHandler.stopListening();
                 },
                 properties

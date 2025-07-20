@@ -6,7 +6,7 @@ public record Coordinate(int x, int y) {
         return new Coordinate(x, y);
     }
 
-   @Override
+    @Override
     public String toString() {
         return "(%02d|%02d)".formatted(x, y);
     }

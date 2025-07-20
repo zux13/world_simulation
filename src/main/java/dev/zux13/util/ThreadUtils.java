@@ -3,13 +3,13 @@ package dev.zux13.util;
 public class ThreadUtils {
 
     /**
-     * Пауза в миллисекундах с безопасной обработкой InterruptedException.
-     * Если поток прерывается, флаг прерывания восстанавливается.
-     *
-     * @param millis длительность сна в миллисекундах
-     * @return true, если сон был прерван
-     */
-    public static boolean sleepSilently(long millis) {
+ * Pauses for a specified number of milliseconds with safe handling of InterruptedException.
+ * If the thread is interrupted, the interrupt flag is restored.
+ *
+ * @param millis the duration of the sleep in milliseconds
+ * @return true if the sleep was interrupted
+ */
+public static boolean sleepSilently(long millis) {
         try {
             Thread.sleep(millis);
             return false;

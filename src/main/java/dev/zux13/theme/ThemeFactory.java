@@ -35,13 +35,11 @@ public class ThemeFactory {
                                 theme.init();
                                 THEMES.put(theme.getName().toUpperCase(), theme);
                             } catch (Exception e) {
-                                System.err.println("Failed to load theme: " + p.getFileName());
-                                e.printStackTrace();
+                                System.err.println("Failed to load theme: " + p.getFileName() + " - " + e.getMessage());
                             }
                         });
             } catch (Exception e) {
-                System.err.println("Error loading themes from " + themesPath.toAbsolutePath());
-                e.printStackTrace();
+                System.err.println("Error loading themes from " + themesPath.toAbsolutePath() + " - " + e.getMessage());
             }
         }
 

@@ -1,12 +1,16 @@
 package dev.zux13.simulation;
 
-import dev.zux13.action.*;
+import dev.zux13.action.CreatureMovementTask;
+import dev.zux13.action.CreatureRespawnTask;
+import dev.zux13.action.GenerateSceneryTask;
+import dev.zux13.action.GrassRegrowthTask;
+import dev.zux13.action.SimulationTask;
+import dev.zux13.board.Board;
 import dev.zux13.decision.DecisionMakerFactory;
 import dev.zux13.decision.RoamingHelper;
 import dev.zux13.event.EventBus;
 import dev.zux13.finder.AStarPathFinder;
 import dev.zux13.finder.ManhattanTargetLocator;
-import dev.zux13.board.Board;
 import dev.zux13.logger.ActionLogger;
 import dev.zux13.renderer.ConsoleRenderer;
 import dev.zux13.settings.SimulationSettings;
@@ -15,7 +19,9 @@ public class SimulationFactory {
 
     public static Simulation create(SimulationSettings settings) {
 
+        TurnCounter turnCounter = new TurnCounter();
         EventBus eventBus = new EventBus();
+
         ActionLogger logger = new ActionLogger(
                 settings.getTheme(),
                 settings.getBoardHeight(),
@@ -23,7 +29,6 @@ public class SimulationFactory {
                 settings.getRendererDividerChar(),
                 eventBus
         );
-        TurnCounter context = new TurnCounter();
 
         Board board = new Board(settings.getBoardWidth(), settings.getBoardHeight());
 
@@ -34,25 +39,25 @@ public class SimulationFactory {
                 eventBus
         );
 
-        RegrowAction regrowAction = new RegrowAction(eventBus);
-        RespawnAction respawnAction = new RespawnAction(decisionMakerFactory, eventBus);
+        GrassRegrowthTask grassRegrowthTask = new GrassRegrowthTask(eventBus);
+        CreatureRespawnTask creatureRespawnTask = new CreatureRespawnTask(decisionMakerFactory, eventBus);
 
-        Action[] initActions = {
-                new GenerateAction(),
-                regrowAction,
-                respawnAction
+        SimulationTask[] initTasks = {
+                new GenerateSceneryTask(),
+                grassRegrowthTask,
+                creatureRespawnTask
         };
 
-        Action[] turnActions = {
-                new MoveAction(eventBus),
-                regrowAction,
-                respawnAction
+        SimulationTask[] turnTasks = {
+                new CreatureMovementTask(eventBus),
+                grassRegrowthTask,
+                creatureRespawnTask
         };
 
         new CreatureActionExecutor(board, eventBus);
         new HungerManager(board, eventBus);
-        new ConsoleRenderer(settings, context, board, logger, settings.getTheme(), eventBus);
+        new ConsoleRenderer(settings, turnCounter, board, logger, settings.getTheme(), eventBus);
 
-        return new Simulation(board, context, settings, initActions, turnActions);
+        return new Simulation(board, turnCounter, settings, initTasks, turnTasks);
     }
 }

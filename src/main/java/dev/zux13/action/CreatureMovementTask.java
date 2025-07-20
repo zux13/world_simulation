@@ -11,11 +11,11 @@ import dev.zux13.util.ThreadUtils;
 
 import java.util.Optional;
 
-public class MoveAction implements Action {
+public class CreatureMovementTask implements SimulationTask {
 
     private final EventBus eventBus;
 
-    public MoveAction(EventBus eventBus) {
+    public CreatureMovementTask(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

@@ -1,7 +1,6 @@
 package dev.zux13.action;
 
 import dev.zux13.board.Board;
-import dev.zux13.board.Coordinate;
 import dev.zux13.decision.DecisionMaker;
 import dev.zux13.decision.DecisionMakerFactory;
 import dev.zux13.entity.creature.Creature;
@@ -12,14 +11,12 @@ import dev.zux13.event.events.CreatureSpawnedEvent;
 import dev.zux13.settings.SimulationSettings;
 import dev.zux13.util.RandomUtils;
 
-import java.util.Optional;
-
-public class RespawnAction implements Action {
+public class CreatureRespawnTask implements SimulationTask {
 
     private final DecisionMakerFactory decisionMakerFactory;
     private final EventBus eventBus;
 
-    public RespawnAction(DecisionMakerFactory decisionMakerFactory, EventBus eventBus) {
+    public CreatureRespawnTask(DecisionMakerFactory decisionMakerFactory, EventBus eventBus) {
         this.decisionMakerFactory = decisionMakerFactory;
         this.eventBus = eventBus;
     }
@@ -43,14 +40,7 @@ public class RespawnAction implements Action {
 
     private void spawnHerbivores(Board board, int count, SimulationSettings settings) {
         DecisionMaker decisionMaker = decisionMakerFactory.forHerbivore();
-
-        for (int i = 0; i < count; i++) {
-            Optional<Coordinate> optionalCoordinate = board.findRandomEmptyCoordinate();
-            if (optionalCoordinate.isEmpty()) {
-                break;
-            }
-            Coordinate coordinate = optionalCoordinate.get();
-
+        board.placeEntityAtRandom(() -> {
             Creature herbivore = new Herbivore.HerbivoreBuilder()
                     .decisionMaker(decisionMaker)
                     .maxHp(RandomUtils.randomInRange(
@@ -70,22 +60,15 @@ public class RespawnAction implements Action {
                     .hungerRestore(settings.getHerbivoreHungerRestore())
                     .healRestore(settings.getHerbivoreHealRestore())
                     .build();
-
-            board.setEntityAt(coordinate, herbivore);
-            eventBus.publish(new CreatureSpawnedEvent(herbivore, coordinate));
-        }
+            board.findRandomEmptyCoordinate().ifPresent(coordinate ->
+                    eventBus.publish(new CreatureSpawnedEvent(herbivore, coordinate)));
+            return herbivore;
+        }, count);
     }
 
     private void spawnPredators(Board board, int count, SimulationSettings settings) {
         DecisionMaker decisionMaker = decisionMakerFactory.forPredator();
-
-        for (int i = 0; i < count; i++) {
-            Optional<Coordinate> optionalCoordinate = board.findRandomEmptyCoordinate();
-            if (optionalCoordinate.isEmpty()) {
-                break;
-            }
-            Coordinate coordinate = optionalCoordinate.get();
-
+        board.placeEntityAtRandom(() -> {
             Creature predator = new Predator.PredatorBuilder()
                     .decisionMaker(decisionMaker)
                     .maxHp(RandomUtils.randomInRange(
@@ -109,10 +92,9 @@ public class RespawnAction implements Action {
                     .hungerRestore(settings.getPredatorHungerRestore())
                     .healRestore(settings.getPredatorHealRestore())
                     .build();
-
-            board.setEntityAt(coordinate, predator);
-            eventBus.publish(new CreatureSpawnedEvent(predator, coordinate));
-        }
+            board.findRandomEmptyCoordinate().ifPresent(coordinate ->
+                    eventBus.publish(new CreatureSpawnedEvent(predator, coordinate)));
+            return predator;
+        }, count);
     }
-
 }
