@@ -25,9 +25,6 @@ jobs:
       - name: Upload release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            target/world_simulation-1.0.jar
-            target/simulation.properties
-            target/themes/*.json
+          files: target/world_simulation-1.0-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
