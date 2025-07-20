@@ -30,4 +30,4 @@ jobs:
             external-resources/simulation.properties
             external-resources/themes/*.json
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
