@@ -20,7 +20,9 @@ public class SetWidthState implements MenuState {
         System.out.println("╔══════════════════════════════════════════════╗");
         System.out.println("║            📏 Set Board Width                ║");
         System.out.println("╠══════════════════════════════════════════════╣");
-        System.out.println("║ Enter a number (min: 20)                     ║");
+        String text = String.format("Enter a number (min: %d)", settings.getMinWidth());
+        String padding = " ".repeat(44 - text.length());
+        System.out.printf("║ %s%s ║%n", text, padding);
         System.out.println("║ 0. Back                                      ║");
         System.out.println("╚══════════════════════════════════════════════╝");
         if (!manager.getStatus().isBlank()) {

@@ -20,7 +20,9 @@ public class SetHeightState implements MenuState {
         System.out.println("╔══════════════════════════════════════════════╗");
         System.out.println("║           📏 Set Board Height                ║");
         System.out.println("╠══════════════════════════════════════════════╣");
-        System.out.println("║ Enter a number (min: 10)                     ║");
+        String text = String.format("Enter a number (min: %d)", settings.getMinHeight());
+        String padding = " ".repeat(44 - text.length());
+        System.out.printf("║ %s%s ║%n", text, padding);
         System.out.println("║ 0. Back                                      ║");
         System.out.println("╚══════════════════════════════════════════════╝");
         if (!manager.getStatus().isBlank()) {

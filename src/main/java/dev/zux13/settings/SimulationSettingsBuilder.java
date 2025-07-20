@@ -51,4 +51,11 @@ public class SimulationSettingsBuilder {
         return new SimulationSettings(boardWidth, boardHeight, theme, properties);
     }
 
+    public int getMinWidth() {
+        return minWidth;
+    }
+
+    public int getMinHeight() {
+        return minHeight;
+    }
 }
