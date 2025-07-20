@@ -28,6 +28,7 @@
   </dependencies>
 
   <build>
+    <finalName>world_simulation-${project.version}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -47,21 +48,23 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.6.0</version>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.0.0</version>
         <executions>
           <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
+            <phase>process-classes</phase>
+            <goals><goal>run</goal></goals>
             <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/dist.xml</descriptor>
-              </descriptors>
+              <target>
+                <copy todir="${project.build.directory}">
+                  <fileset dir="${basedir}/external-resources">
+                    <include name="**/*" />
+                  </fileset>
+                </copy>
+              </target>
             </configuration>
           </execution>
         </executions>
