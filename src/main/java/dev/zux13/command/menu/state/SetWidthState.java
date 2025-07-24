@@ -3,16 +3,15 @@ package dev.zux13.command.menu.state;
 import dev.zux13.command.menu.MenuStateManager;
 import dev.zux13.settings.SimulationSettingsBuilder;
 import dev.zux13.util.ConsoleUtils;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class SetWidthState implements MenuState {
 
-    private final MenuStateManager manager;
-    private final SimulationSettingsBuilder settings;
+    private static final String BACK = "0";
 
-    public SetWidthState(MenuStateManager manager, SimulationSettingsBuilder settings) {
-        this.manager = manager;
-        this.settings = settings;
-    }
+    private final MenuStateManager manager;
+    private final SimulationSettingsBuilder builder;
 
     @Override
     public void onEnter() {
@@ -20,10 +19,12 @@ public class SetWidthState implements MenuState {
         System.out.println("╔══════════════════════════════════════════════╗");
         System.out.println("║            📏 Set Board Width                ║");
         System.out.println("╠══════════════════════════════════════════════╣");
-        String text = String.format("Enter a number (min: %d)", settings.getMinWidth());
+        String text = String.format("Enter a number (min: %d, max: %d)",
+                builder.getMinWidth(),
+                builder.getMaxWidth());
         String padding = " ".repeat(44 - text.length());
         System.out.printf("║ %s%s ║%n", text, padding);
-        System.out.println("║ 0. Back                                      ║");
+        System.out.printf("║ %s. Back                                      ║%n", BACK);
         System.out.println("╚══════════════════════════════════════════════╝");
         if (!manager.getStatus().isBlank()) {
             System.out.println(manager.getStatus());
@@ -35,16 +36,16 @@ public class SetWidthState implements MenuState {
     @Override
     public void handleInput(String input) {
         input = input.trim();
-        if (input.equals("0")) {
-            manager.setState(new SettingsMenuState(manager, settings));
+        if (input.equals(BACK)) {
+            manager.setState(new SettingsMenuState(manager, builder));
             return;
         }
 
         try {
             int width = Integer.parseInt(input);
-            settings.setBoardWidth(width);
+            builder.boardWidth(width);
             manager.setStatus("✅ Width set to " + width);
-            manager.setState(new SettingsMenuState(manager, settings));
+            manager.setState(new SettingsMenuState(manager, builder));
         } catch (NumberFormatException e) {
             manager.setStatus("❌ Invalid number.");
             onEnter();

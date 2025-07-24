@@ -2,16 +2,17 @@ package dev.zux13.command;
 
 import dev.zux13.simulation.Simulation;
 import dev.zux13.util.ThreadUtils;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class SimulationCommandHandler implements CommandHandler {
+
+    private static final String STOP = "0";
+    private static final String NEXT_TURN = "1";
+    private static final String RESUME = "2";
 
     private final Simulation simulation;
     private final Runnable onStop;
-
-    public SimulationCommandHandler(Simulation simulation, Runnable onStop) {
-        this.simulation = simulation;
-        this.onStop = onStop;
-    }
 
     @Override
     public void handle(String input) {
@@ -25,28 +26,26 @@ public class SimulationCommandHandler implements CommandHandler {
 
     private void tryPauseSimulation() {
         simulation.pauseSimulation();
-
         while (!simulation.isActuallyWaitingOnPause()) {
             if (ThreadUtils.sleepSilently(50)) {
                 break;
             }
         }
-
         printAvailableCommands();
     }
 
     private void handleCommand(String input) {
         switch (input) {
-            case "1" -> {
+            case NEXT_TURN -> {
                 simulation.nextTurn();
                 System.out.println("[✅ Next turn executed]");
                 printAvailableCommands();
             }
-            case "2" -> {
+            case RESUME -> {
                 simulation.resumeSimulation();
                 System.out.println("[▶ Simulation resumed]");
             }
-            case "0" -> {
+            case STOP -> {
                 simulation.stopSimulation();
                 System.out.println("[🛑 Simulation stopped]");
                 onStop.run();
@@ -59,9 +58,9 @@ public class SimulationCommandHandler implements CommandHandler {
     }
 
     private void printAvailableCommands() {
-        System.out.print("""
-                        [⏸ Paused] 1: Next turn | 2: Resume | 0: Stop
-                        """);
+        System.out.printf("""
+                        [⏸ Paused] %s: Next turn | %s: Resume | %s: Stop
+                        """, NEXT_TURN, RESUME, STOP);
         System.out.print("> ");
     }
 }

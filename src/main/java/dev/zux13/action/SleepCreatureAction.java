@@ -1,4 +1,4 @@
-package dev.zux13.action.creature;
+package dev.zux13.action;
 
 import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;

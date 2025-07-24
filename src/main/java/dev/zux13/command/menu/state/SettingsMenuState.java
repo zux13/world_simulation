@@ -3,16 +3,18 @@ package dev.zux13.command.menu.state;
 import dev.zux13.command.menu.MenuStateManager;
 import dev.zux13.settings.SimulationSettingsBuilder;
 import dev.zux13.util.ConsoleUtils;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class SettingsMenuState implements MenuState {
 
-    private final MenuStateManager manager;
-    private final SimulationSettingsBuilder settings;
+    private static final String BACK = "0";
+    private static final String SET_WIDTH = "1";
+    private static final String SET_HEIGHT = "2";
+    private static final String CHOOSE_THEME = "3";
 
-    public SettingsMenuState(MenuStateManager manager, SimulationSettingsBuilder settings) {
-        this.manager = manager;
-        this.settings = settings;
-    }
+    private final MenuStateManager manager;
+    private final SimulationSettingsBuilder builder;
 
     @Override
     public void onEnter() {
@@ -20,10 +22,10 @@ public class SettingsMenuState implements MenuState {
         System.out.println("╔══════════════════════════════════════════════╗");
         System.out.println("║                ⚙ Settings                    ║");
         System.out.println("╠══════════════════════════════════════════════╣");
-        System.out.println("║ 1. Set board width                           ║");
-        System.out.println("║ 2. Set board height                          ║");
-        System.out.println("║ 3. Choose theme                              ║");
-        System.out.println("║ 0. Back                                      ║");
+        System.out.printf("║ %s. Set board width                           ║%n", SET_WIDTH);
+        System.out.printf("║ %s. Set board height                          ║%n", SET_HEIGHT);
+        System.out.printf("║ %s. Choose theme                              ║%n", CHOOSE_THEME);
+        System.out.printf("║ %s. Back to Main Menu (and save changes)      ║%n", BACK);
         System.out.println("╚══════════════════════════════════════════════╝");
         if (!manager.getStatus().isBlank()) {
             System.out.println(manager.getStatus());
@@ -35,10 +37,10 @@ public class SettingsMenuState implements MenuState {
     @Override
     public void handleInput(String input) {
         switch (input.trim()) {
-            case "0" -> manager.returnToMainMenu();
-            case "1" -> manager.setState(new SetWidthState(manager, settings));
-            case "2" -> manager.setState(new SetHeightState(manager, settings));
-            case "3" -> manager.setState(new ChooseThemeState(manager, settings));
+            case BACK -> manager.returnToMainMenu(builder);
+            case SET_WIDTH -> manager.setState(new SetWidthState(manager, builder));
+            case SET_HEIGHT -> manager.setState(new SetHeightState(manager, builder));
+            case CHOOSE_THEME -> manager.setState(new ChooseThemeState(manager, builder));
             default -> {
                 manager.setStatus("❌ Invalid input.");
                 onEnter();

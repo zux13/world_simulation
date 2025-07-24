@@ -4,9 +4,12 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ResourceUtils {
+public final class ResourceUtils {
 
     private static final Path BASE_PATH = findBasePath();
+
+    private ResourceUtils() {
+    }
 
     private static Path findBasePath() {
         try {

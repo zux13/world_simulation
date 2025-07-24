@@ -3,18 +3,20 @@ package dev.zux13.simulation;
 import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;
 import dev.zux13.event.EventBus;
+import dev.zux13.event.EventSubscriber;
 import dev.zux13.event.Priority;
 import dev.zux13.event.events.CreatureActionDecidedEvent;
 import dev.zux13.event.events.CreatureActionExecutedEvent;
+import lombok.RequiredArgsConstructor;
 
-public class CreatureActionExecutor {
+@RequiredArgsConstructor
+public class CreatureActionExecutor implements EventSubscriber {
 
     private final Board board;
     private final EventBus eventBus;
 
-    public CreatureActionExecutor(Board board, EventBus eventBus) {
-        this.board = board;
-        this.eventBus = eventBus;
+    @Override
+    public void subscribeToEvents(EventBus eventBus) {
         eventBus.subscribe(CreatureActionDecidedEvent.class, this::executeCreatureAction, Priority.HIGH);
     }
 

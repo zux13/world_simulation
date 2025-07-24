@@ -1,7 +1,8 @@
 package dev.zux13.entity.creature;
 
-import dev.zux13.board.Coordinate;
 import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
+import dev.zux13.board.Coordinate;
 
 public class Herbivore extends Creature {
 
@@ -10,8 +11,8 @@ public class Herbivore extends Creature {
     }
 
     @Override
-    public void makeMove(Board board, Coordinate current) {
-        getDecisionMaker().decide(board, current, this);
+    public void makeMove(Board board, BoardService boardService, Coordinate current) {
+        getDecisionMaker().decide(board, boardService, current, this);
     }
 
     public static class HerbivoreBuilder extends CreatureBuilder<HerbivoreBuilder> {

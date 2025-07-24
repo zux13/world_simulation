@@ -1,4 +1,4 @@
-package dev.zux13.action.creature;
+package dev.zux13.action;
 
 import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;
@@ -12,7 +12,10 @@ public record MoveCreatureAction(
 
     @Override
     public Coordinate execute(Board board) {
-        board.moveEntity(from, to);
+        board.getEntityAt(from).ifPresent(entity -> {
+            board.removeEntityAt(from);
+            board.setEntityAt(to, entity);
+        });
         return to;
     }
 }

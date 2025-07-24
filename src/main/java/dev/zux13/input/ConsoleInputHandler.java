@@ -1,17 +1,16 @@
 package dev.zux13.input;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+@RequiredArgsConstructor
 public class ConsoleInputHandler implements InputHandler {
 
-    private final Scanner scanner = new Scanner(System.in);
     private final Consumer<String> commandConsumer;
+    private final Scanner scanner = new Scanner(System.in);
     private volatile boolean running = true;
-
-    public ConsoleInputHandler(Consumer<String> commandConsumer) {
-        this.commandConsumer = commandConsumer;
-    }
 
     @Override
     public void startListening() {

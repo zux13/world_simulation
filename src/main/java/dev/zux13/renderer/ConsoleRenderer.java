@@ -4,42 +4,32 @@ import dev.zux13.board.Board;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.Entity;
 import dev.zux13.event.EventBus;
+import dev.zux13.event.EventSubscriber;
 import dev.zux13.event.Priority;
 import dev.zux13.event.events.SimulationMoveExecutedEvent;
-import dev.zux13.logger.ActionLogger;
+import dev.zux13.logger.EventLogger;
 import dev.zux13.simulation.TurnCounter;
 import dev.zux13.settings.SimulationSettings;
 import dev.zux13.theme.Theme;
 import dev.zux13.util.ConsoleUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-public class ConsoleRenderer implements Renderer {
+@RequiredArgsConstructor
+public class ConsoleRenderer implements Renderer, EventSubscriber {
 
     private static final int CHAR_WIDTH_PER_CELL = 2;
     private static final String SEPARATOR = "  | ";
 
     private final SimulationSettings settings;
     private final TurnCounter turnCounter;
-    private final ActionLogger logger;
+    private final EventLogger logger;
     private final Board board;
     private final Theme theme;
 
-    public ConsoleRenderer(SimulationSettings settings,
-                           TurnCounter turnCounter,
-                           Board board,
-                           ActionLogger logger,
-                           Theme theme,
-                           EventBus eventBus) {
-        this.settings = settings;
-        this.turnCounter = turnCounter;
-        this.logger = logger;
-        this.board = board;
-        this.theme = theme;
-        subscribeToEvents(eventBus);
-    }
-
-    private void subscribeToEvents(EventBus eventBus) {
+    @Override
+    public void subscribeToEvents(EventBus eventBus) {
         eventBus.subscribe(SimulationMoveExecutedEvent.class, this::onMoveExecuted, Priority.LOW);
     }
 
@@ -54,7 +44,7 @@ public class ConsoleRenderer implements Renderer {
         int boardWidth = board.getWidth();
         int boardHeight = board.getHeight();
         int charWidth = getEntityRowWidth(boardWidth);
-        int logWidth = settings.getRendererLogWidth();
+        int logWidth = settings.rendererLogWidth();
         int totalWidth = getTotalWidth(charWidth, logWidth);
 
         List<String> logs = logger.getLogSnapshot();
@@ -76,7 +66,7 @@ public class ConsoleRenderer implements Renderer {
     private String renderEntityRow(Board board, int y, int width) {
         StringBuilder row = new StringBuilder();
         for (int x = 0; x < width; x++) {
-            Coordinate coordinate = Coordinate.of(x, y);
+            Coordinate coordinate = new Coordinate(x, y);
             Entity entity = board.getEntityAt(coordinate).orElse(null);
             row.append(getEntityChar(entity));
         }
@@ -101,7 +91,7 @@ public class ConsoleRenderer implements Renderer {
     }
 
     private String getDivider(int totalWidth) {
-        return settings.getRendererDividerChar().repeat(totalWidth);
+        return settings.rendererDividerChar().repeat(totalWidth);
     }
 
     private String formatTurnTitle(int totalWidth, int turn) {

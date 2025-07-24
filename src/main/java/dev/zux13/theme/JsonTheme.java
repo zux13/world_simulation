@@ -7,10 +7,12 @@ import dev.zux13.entity.Rock;
 import dev.zux13.entity.Tree;
 import dev.zux13.entity.creature.Herbivore;
 import dev.zux13.entity.creature.Predator;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Setter
 public class JsonTheme implements Theme {
 
     private String name;
@@ -55,17 +57,5 @@ public class JsonTheme implements Theme {
     @Override
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setSpriteMap(Map<String, String> spriteMap) {
-        this.spriteMap = spriteMap;
-    }
-
-    public void setEmojiMap(Map<EmojiType, String> emojiMap) {
-        this.emojiMap = emojiMap;
     }
 }

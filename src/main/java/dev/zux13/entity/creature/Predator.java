@@ -1,8 +1,11 @@
 package dev.zux13.entity.creature;
 
-import dev.zux13.board.Coordinate;
 import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
+import dev.zux13.board.Coordinate;
+import lombok.Getter;
 
+@Getter
 public class Predator extends Creature {
 
     private final int attack;
@@ -12,13 +15,9 @@ public class Predator extends Creature {
         this.attack = builder.attack;
     }
 
-    public int getAttack() {
-        return attack;
-    }
-
     @Override
-    public void makeMove(Board board, Coordinate current) {
-        getDecisionMaker().decide(board, current, this);
+    public void makeMove(Board board, BoardService boardService, Coordinate current) {
+        getDecisionMaker().decide(board, boardService, current, this);
     }
 
     public static class PredatorBuilder extends CreatureBuilder<PredatorBuilder> {

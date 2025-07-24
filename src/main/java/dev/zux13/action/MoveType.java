@@ -1,5 +1,8 @@
-package dev.zux13.action.creature;
+package dev.zux13.action;
 
+import lombok.Getter;
+
+@Getter
 public enum MoveType {
     ROAM("roams"),
     CHASE("chases"),
@@ -10,9 +13,5 @@ public enum MoveType {
 
     MoveType(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

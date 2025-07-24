@@ -1,5 +1,6 @@
 package dev.zux13.finder;
 
+import dev.zux13.board.BoardService;
 import dev.zux13.board.Coordinate;
 import dev.zux13.board.Board;
 import dev.zux13.util.CoordinateUtils;
@@ -15,8 +16,10 @@ public class AStarPathFinder implements PathFinder {
     }
 
     @Override
-    public Optional<Coordinate> nextStep(Board board, Coordinate from, Coordinate to) {
-        if (from.equals(to)) return Optional.empty();
+    public Optional<Coordinate> nextStep(Board board, BoardService boardService, Coordinate from, Coordinate to) {
+        if (from.equals(to)) {
+            return Optional.empty();
+        }
 
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingInt(Node::fCost));
         Map<Coordinate, Integer> gScores = new HashMap<>();
@@ -34,13 +37,19 @@ public class AStarPathFinder implements PathFinder {
                 return Optional.of(retraceFirstStep(current));
             }
 
-            if (!closedSet.add(currentCoordinate)) continue;
+            if (!closedSet.add(currentCoordinate)) {
+                continue;
+            }
 
-            for (Coordinate neighbor : board.getNeighbors(currentCoordinate)) {
-                if ((!board.isTileEmpty(neighbor) && !neighbor.equals(to)) || closedSet.contains(neighbor)) continue;
+            for (Coordinate neighbor : boardService.getNeighbors(currentCoordinate)) {
+                if ((!board.isTileEmpty(neighbor) && !neighbor.equals(to)) || closedSet.contains(neighbor)) {
+                    continue;
+                }
 
                 int tentativeG = current.gCost + CoordinateUtils.getMovementCost(currentCoordinate, neighbor);
-                if (tentativeG >= gScores.getOrDefault(neighbor, Integer.MAX_VALUE)) continue;
+                if (tentativeG >= gScores.getOrDefault(neighbor, Integer.MAX_VALUE)) {
+                    continue;
+                }
 
                 gScores.put(neighbor, tentativeG);
                 int h = CoordinateUtils.diagonalDistance(neighbor, to);

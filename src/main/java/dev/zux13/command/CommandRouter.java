@@ -1,15 +1,16 @@
 package dev.zux13.command;
 
-public class CommandRouter {
-    private CommandHandler currentHandler;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public void setHandler(CommandHandler handler) {
-        this.currentHandler = handler;
-    }
+@NoArgsConstructor
+@Setter
+public class CommandRouter {
+    private CommandHandler handler;
 
     public void route(String input) {
-        if (currentHandler != null) {
-            currentHandler.handle(input);
+        if (handler != null) {
+            handler.handle(input);
         }
     }
 }

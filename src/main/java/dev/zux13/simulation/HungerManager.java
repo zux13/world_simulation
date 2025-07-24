@@ -2,20 +2,22 @@ package dev.zux13.simulation;
 
 import dev.zux13.board.Board;
 import dev.zux13.event.EventBus;
+import dev.zux13.event.EventSubscriber;
 import dev.zux13.event.Priority;
 import dev.zux13.event.events.CreatureActionExecutedEvent;
 import dev.zux13.event.events.CreatureDiedOfHungerEvent;
 import dev.zux13.event.events.CreatureIsStarvingEvent;
+import lombok.RequiredArgsConstructor;
 
-public class HungerManager {
+@RequiredArgsConstructor
+public class HungerManager implements EventSubscriber {
 
     private final Board board;
     private final EventBus eventBus;
 
-    public HungerManager(Board board, EventBus eventBus) {
-        this.board = board;
-        this.eventBus = eventBus;
-        this.eventBus.subscribe(CreatureActionExecutedEvent.class, this::onCreatureActionExecuted, Priority.HIGH);
+    @Override
+    public void subscribeToEvents(EventBus eventBus) {
+        eventBus.subscribe(CreatureActionExecutedEvent.class, this::onCreatureActionExecuted, Priority.HIGH);
     }
 
     private void onCreatureActionExecuted(CreatureActionExecutedEvent event) {
@@ -31,4 +33,5 @@ public class HungerManager {
             eventBus.publish(new CreatureIsStarvingEvent(creature, coordinate));
         }
     }
+
 }

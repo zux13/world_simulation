@@ -1,10 +1,13 @@
 package dev.zux13.entity.creature;
 
+import dev.zux13.board.BoardService;
 import dev.zux13.decision.DecisionMaker;
 import dev.zux13.entity.Entity;
 import dev.zux13.board.Coordinate;
 import dev.zux13.board.Board;
+import lombok.Getter;
 
+@Getter
 public abstract class Creature extends Entity {
 
     private final DecisionMaker decisionMaker;
@@ -69,31 +72,7 @@ public abstract class Creature extends Entity {
         return currentHunger <= 0;
     }
 
-    public int getVision() {
-        return vision;
-    }
-
-    public int getMaxHP() {
-        return maxHp;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public int getCurrentHp() {
-        return currentHp;
-    }
-
-    public int getHealRestore() {
-        return healRestore;
-    }
-
-    public DecisionMaker getDecisionMaker() {
-        return decisionMaker;
-    }
-
-    public abstract void makeMove(Board board, Coordinate current);
+    public abstract void makeMove(Board board, BoardService boardService, Coordinate current);
 
     public static abstract class CreatureBuilder<T extends CreatureBuilder<T>> {
         private DecisionMaker decisionMaker;

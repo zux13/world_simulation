@@ -1,44 +1,38 @@
 package dev.zux13.simulation;
 
-import dev.zux13.action.SimulationTask;
+import dev.zux13.board.BoardService;
+import dev.zux13.task.SimulationTask;
 import dev.zux13.board.Board;
 import dev.zux13.settings.SimulationSettings;
 import dev.zux13.util.ThreadUtils;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+@RequiredArgsConstructor
 public class Simulation {
     private final Board board;
+    private final BoardService boardService;
     private final TurnCounter turnCounter;
     private final SimulationSettings settings;
 
     private final SimulationTask[] initTasks;
     private final SimulationTask[] turnTasks;
 
-    private volatile boolean running = true;
+    @Getter
     private volatile boolean paused = false;
+    private volatile boolean running = true;
     private volatile boolean isWaitingOnPause = false;
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition pauseCondition = lock.newCondition();
 
-    public Simulation(Board board,
-                      TurnCounter turnCounter,
-                      SimulationSettings settings,
-                      SimulationTask[] initTasks,
-                      SimulationTask[] turnTasks) {
-        this.board = board;
-        this.turnCounter = turnCounter;
-        this.settings = settings;
-        this.initTasks = initTasks;
-        this.turnTasks = turnTasks;
-    }
-
     public void startSimulation() {
 
         for (SimulationTask task : initTasks) {
-            task.execute(board, settings);
+            task.execute(board, boardService, settings);
         }
 
         while (running) {
@@ -57,7 +51,7 @@ public class Simulation {
     public void nextTurn() {
         turnCounter.nextTurn();
         for (SimulationTask task : turnTasks) {
-            task.execute(board, settings);
+            task.execute(board, boardService, settings);
         }
     }
 
@@ -103,10 +97,6 @@ public class Simulation {
         } finally {
             lock.unlock();
         }
-    }
-
-    public boolean isPaused() {
-        return paused;
     }
 
     public boolean isActuallyWaitingOnPause() {

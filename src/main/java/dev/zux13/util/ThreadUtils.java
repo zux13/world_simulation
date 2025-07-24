@@ -1,6 +1,9 @@
 package dev.zux13.util;
 
-public class ThreadUtils {
+public final class ThreadUtils {
+
+    private ThreadUtils() {
+    }
 
     /**
  * Pauses for a specified number of milliseconds with safe handling of InterruptedException.

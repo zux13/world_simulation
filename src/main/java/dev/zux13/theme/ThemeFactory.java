@@ -3,6 +3,7 @@ package dev.zux13.theme;
 import com.google.gson.Gson;
 import dev.zux13.util.ResourceUtils;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,31 +23,43 @@ public class ThemeFactory {
     private static void loadThemes() {
         createAndAddTextTheme();
 
-        Gson gson = new Gson();
         Path themesPath = ResourceUtils.getPath("themes");
-
-        if (Files.isDirectory(themesPath)) {
-            try {
-                Files.list(themesPath)
-                        .filter(p -> p.toString().endsWith(".json"))
-                        .forEach(p -> {
-                            try (Reader reader = Files.newBufferedReader(p)) {
-                                JsonTheme theme = gson.fromJson(reader, JsonTheme.class);
-                                theme.init();
-                                THEMES.put(theme.getName().toUpperCase(), theme);
-                            } catch (Exception e) {
-                                System.err.println("Failed to load theme: " + p.getFileName() + " - " + e.getMessage());
-                            }
-                        });
-            } catch (Exception e) {
-                System.err.println("Error loading themes from " + themesPath.toAbsolutePath() + " - " + e.getMessage());
-            }
+        if (!Files.isDirectory(themesPath)) {
+            logThemesDirectoryMissing(themesPath);
+            return;
         }
 
-        if (THEMES.size() <= 1 && !Files.isDirectory(themesPath)) {
-            System.err.println("WARNING: 'themes' directory not found. Only the default text-based theme is available.");
+        try {
+            loadJsonThemesFromDirectory(themesPath);
+        } catch (IOException e) {
+            System.err.printf("Error loading themes from %s - %s%n", themesPath.toAbsolutePath(), e.getMessage());
         }
     }
+
+    private static void loadJsonThemesFromDirectory(Path directory) throws IOException {
+        Gson gson = new Gson();
+
+        try (var paths = Files.list(directory)) {
+            paths.filter(p -> p.toString().endsWith(".json"))
+                    .forEach(path -> loadThemeFromFile(gson, path));
+        }
+    }
+
+    private static void loadThemeFromFile(Gson gson, Path path) {
+        try (Reader reader = Files.newBufferedReader(path)) {
+            JsonTheme theme = gson.fromJson(reader, JsonTheme.class);
+            theme.init();
+            THEMES.put(theme.getName().toUpperCase(), theme);
+        } catch (Exception e) {
+            System.err.printf("Failed to load theme from %s - %s%n", path.getFileName(), e.getMessage());
+        }
+    }
+
+    private static void logThemesDirectoryMissing(Path path) {
+        System.err.printf("WARNING: '%s' directory not found. Only the default text-based theme is available.%n",
+                path.toAbsolutePath());
+    }
+
 
     private static void createAndAddTextTheme() {
         JsonTheme textTheme = new JsonTheme();

@@ -1,22 +1,25 @@
 package dev.zux13.logger;
 
-import dev.zux13.action.creature.*;
+import dev.zux13.action.*;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.Entity;
 import dev.zux13.entity.Grass;
 import dev.zux13.entity.creature.Creature;
 import dev.zux13.entity.creature.Predator;
 import dev.zux13.event.EventBus;
+import dev.zux13.event.EventSubscriber;
 import dev.zux13.event.Priority;
 import dev.zux13.event.events.*;
 import dev.zux13.theme.EmojiType;
 import dev.zux13.theme.Theme;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ActionLogger implements LogProvider {
+@RequiredArgsConstructor
+public class EventLogger implements LogProvider, EventSubscriber {
 
     private final LinkedList<String> logs = new LinkedList<>();
     private final Theme theme;
@@ -24,20 +27,18 @@ public class ActionLogger implements LogProvider {
     private final int logWidth;
     private final String divider;
 
-    public ActionLogger(Theme theme, int maxSize, int logWidth, String divider, EventBus eventBus) {
-        this.theme = theme;
-        this.maxSize = maxSize;
-        this.logWidth = logWidth;
-        this.divider = divider;
-        subscribeToEvents(eventBus);
-    }
-
-    private void subscribeToEvents(EventBus eventBus) {
+    @Override
+    public void subscribeToEvents(EventBus eventBus) {
         eventBus.subscribe(GrassSpawnedEvent.class, this::onGrassSpawned, Priority.NORMAL);
         eventBus.subscribe(CreatureSpawnedEvent.class, this::onCreatureSpawned, Priority.NORMAL);
         eventBus.subscribe(CreatureActionDecidedEvent.class, this::onCreatureActionDecided, Priority.NORMAL);
         eventBus.subscribe(CreatureIsStarvingEvent.class, this::onCreatureIsStarving, Priority.NORMAL);
         eventBus.subscribe(CreatureDiedOfHungerEvent.class, this::onCreatureDiedOfHunger, Priority.NORMAL);
+    }
+
+    @Override
+    public List<String> getLogSnapshot() {
+        return new ArrayList<>(logs);
     }
 
     private void onGrassSpawned(GrassSpawnedEvent event) {
@@ -148,7 +149,7 @@ public class ActionLogger implements LogProvider {
     private String formatCreatureStats(Creature creature) {
         String stats = "%s %s:%d %s:%d %s:%d".formatted(
                 theme.getSprite(creature),
-                theme.getSymbol(EmojiType.HEALTH), creature.getMaxHP(),
+                theme.getSymbol(EmojiType.HEALTH), creature.getMaxHp(),
                 theme.getSymbol(EmojiType.SPEED), creature.getSpeed(),
                 theme.getSymbol(EmojiType.VISION), creature.getVision()
         );
@@ -187,10 +188,5 @@ public class ActionLogger implements LogProvider {
                 text,
                 divider.repeat(paddingRight)
         );
-    }
-
-    @Override
-    public List<String> getLogSnapshot() {
-        return new ArrayList<>(logs);
     }
 }

@@ -35,7 +35,7 @@ public class RoamingHelper {
             int newY = current.y() + dy;
 
             if (CoordinateUtils.isWithinBounds(newX, newY, width, height)) {
-                Coordinate target = Coordinate.of(newX, newY);
+                Coordinate target = new Coordinate(newX, newY);
                 if (board.isTileEmpty(target)) {
                     return Optional.of(target);
                 }

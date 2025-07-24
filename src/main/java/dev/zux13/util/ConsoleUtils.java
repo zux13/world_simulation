@@ -1,7 +1,9 @@
 package dev.zux13.util;
 
-public class ConsoleUtils {
+public final class ConsoleUtils {
 
+    private ConsoleUtils() {
+    }
     /**
  * Clears the console screen completely.
  */

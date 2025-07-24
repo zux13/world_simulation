@@ -9,10 +9,13 @@ import java.util.stream.IntStream;
 /**
  * Utility methods for working with coordinates on the game board.
  */
-public class CoordinateUtils {
+public final class CoordinateUtils {
 
     public static final int MOVE_COST_STRAIGHT = 10;
     public static final int MOVE_COST_DIAGONAL = 14;
+
+    private CoordinateUtils() {
+    }
 
     /**
      * Checks if the point {@code to} is within the {@code radius} of the point {@code from}.
@@ -48,7 +51,7 @@ public class CoordinateUtils {
                 int ny = center.y() + dy;
 
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                    neighbors.add(Coordinate.of(nx, ny));
+                    neighbors.add(new Coordinate(nx, ny));
                 }
             }
         }
@@ -68,7 +71,7 @@ public class CoordinateUtils {
         return IntStream.range(0, height)
                 .boxed()
                 .flatMap(y -> IntStream.range(0, width)
-                        .mapToObj(x -> Coordinate.of(x, y)))
+                        .mapToObj(x -> new Coordinate(x, y)))
                 .toList();
     }
 
