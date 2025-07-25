@@ -3,7 +3,9 @@ package dev.zux13.util;
 import dev.zux13.board.Coordinate;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -112,6 +114,35 @@ public final class CoordinateUtils {
         int dx = Math.abs(a.x() - b.x());
         int dy = Math.abs(a.y() - b.y());
         return (dx == 1 && dy == 1) ? MOVE_COST_DIAGONAL : MOVE_COST_STRAIGHT;
+    }
+
+    public static Optional<Coordinate> findClosest(Coordinate from, List<Coordinate> targets) {
+        return targets.stream()
+                .min(Comparator.comparingInt(c -> manhattanDistance(from, c)));
+    }
+
+    public static Optional<Coordinate> findFarthest(Coordinate from, List<Coordinate> targets) {
+        return targets.stream()
+                .max(Comparator.comparingInt(c -> manhattanDistance(from, c)));
+    }
+
+    public static List<Coordinate> getCoordinatesWithinRadius(Coordinate from, int radius, int width, int height) {
+        List<Coordinate> result = new ArrayList<>();
+        int fromX = from.x();
+        int fromY = from.y();
+
+        for (int x = fromX - radius; x <= fromX + radius; x++) {
+            for (int y = fromY - radius; y <= fromY + radius; y++) {
+                if (!isWithinBounds(x, y, width, height)) {
+                    continue;
+                }
+                Coordinate current = new Coordinate(x, y);
+                if (isWithinRadius(from, current, radius)) {
+                    result.add(current);
+                }
+            }
+        }
+        return result;
     }
 
     public static boolean isWithinBounds(int x, int y, int width, int height) {

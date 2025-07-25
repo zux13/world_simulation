@@ -1,13 +1,12 @@
-package dev.zux13.finder;
+package dev.zux13.navigator;
 
 import dev.zux13.board.BoardService;
 import dev.zux13.board.Coordinate;
-import dev.zux13.board.Board;
 import dev.zux13.util.CoordinateUtils;
 
 import java.util.*;
 
-public class AStarPathFinder implements PathFinder {
+public class AStarNavigator implements Navigator {
 
     private record Node(Coordinate coordinate, Node parent, int gCost, int hCost) {
         int fCost() {
@@ -16,7 +15,7 @@ public class AStarPathFinder implements PathFinder {
     }
 
     @Override
-    public Optional<Coordinate> nextStep(Board board, BoardService boardService, Coordinate from, Coordinate to) {
+    public Optional<Coordinate> nextStep(BoardService boardService, Coordinate from, Coordinate to) {
         if (from.equals(to)) {
             return Optional.empty();
         }
@@ -42,7 +41,7 @@ public class AStarPathFinder implements PathFinder {
             }
 
             for (Coordinate neighbor : boardService.getNeighbors(currentCoordinate)) {
-                if ((!board.isTileEmpty(neighbor) && !neighbor.equals(to)) || closedSet.contains(neighbor)) {
+                if ((!boardService.isTileEmpty(neighbor) && !neighbor.equals(to)) || closedSet.contains(neighbor)) {
                     continue;
                 }
 

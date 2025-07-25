@@ -1,6 +1,6 @@
 package dev.zux13.renderer;
 
-import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.Entity;
 import dev.zux13.event.EventBus;
@@ -23,9 +23,9 @@ public class ConsoleRenderer implements Renderer, EventSubscriber {
     private static final String SEPARATOR = "  | ";
 
     private final SimulationSettings settings;
+    private final BoardService boardService;
     private final TurnCounter turnCounter;
     private final EventLogger logger;
-    private final Board board;
     private final Theme theme;
 
     @Override
@@ -41,8 +41,8 @@ public class ConsoleRenderer implements Renderer, EventSubscriber {
     public void render() {
         ConsoleUtils.clearConsole();
 
-        int boardWidth = board.getWidth();
-        int boardHeight = board.getHeight();
+        int boardWidth = boardService.getWidth();
+        int boardHeight = boardService.getHeight();
         int charWidth = getEntityRowWidth(boardWidth);
         int logWidth = settings.rendererLogWidth();
         int totalWidth = getTotalWidth(charWidth, logWidth);
@@ -54,7 +54,7 @@ public class ConsoleRenderer implements Renderer, EventSubscriber {
         System.out.println(getDivider(totalWidth));
 
         for (int y = 0; y < boardHeight; y++) {
-            String entityRow = renderEntityRow(board, y, boardWidth);
+            String entityRow = renderEntityRow(y, boardWidth);
             String log = renderLog(logs, y, logWidth);
             System.out.println(entityRow + SEPARATOR + log);
         }
@@ -63,11 +63,11 @@ public class ConsoleRenderer implements Renderer, EventSubscriber {
         System.out.flush();
     }
 
-    private String renderEntityRow(Board board, int y, int width) {
+    private String renderEntityRow(int y, int width) {
         StringBuilder row = new StringBuilder();
         for (int x = 0; x < width; x++) {
             Coordinate coordinate = new Coordinate(x, y);
-            Entity entity = board.getEntityAt(coordinate).orElse(null);
+            Entity entity = boardService.getEntityAt(coordinate).orElse(null);
             row.append(getEntityChar(entity));
         }
         return row.toString();

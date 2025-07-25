@@ -2,7 +2,6 @@ package dev.zux13.simulation;
 
 import dev.zux13.board.BoardService;
 import dev.zux13.task.SimulationTask;
-import dev.zux13.board.Board;
 import dev.zux13.settings.SimulationSettings;
 import dev.zux13.util.ThreadUtils;
 import lombok.Getter;
@@ -13,7 +12,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor
 public class Simulation {
-    private final Board board;
     private final BoardService boardService;
     private final TurnCounter turnCounter;
     private final SimulationSettings settings;
@@ -32,7 +30,7 @@ public class Simulation {
     public void startSimulation() {
 
         for (SimulationTask task : initTasks) {
-            task.execute(board, boardService, settings);
+            task.execute(boardService, settings);
         }
 
         while (running) {
@@ -51,7 +49,7 @@ public class Simulation {
     public void nextTurn() {
         turnCounter.nextTurn();
         for (SimulationTask task : turnTasks) {
-            task.execute(board, boardService, settings);
+            task.execute(boardService, settings);
         }
     }
 

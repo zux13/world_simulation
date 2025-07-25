@@ -1,6 +1,6 @@
 package dev.zux13.action;
 
-import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.Entity;
 import dev.zux13.entity.creature.Creature;
@@ -11,8 +11,8 @@ public record EatCreatureAction(Creature creature,
                                 Coordinate target) implements CreatureAction {
 
     @Override
-    public Coordinate execute(Board board) {
-        board.removeEntityAt(target);
+    public Coordinate execute(BoardService boardService) {
+        boardService.removeEntityAt(target);
         creature.eat();
         return current;
     }

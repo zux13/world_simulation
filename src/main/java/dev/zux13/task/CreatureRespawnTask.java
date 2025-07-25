@@ -1,9 +1,9 @@
 package dev.zux13.task;
 
-import dev.zux13.board.Board;
 import dev.zux13.board.BoardService;
 import dev.zux13.decision.DecisionMaker;
 import dev.zux13.decision.DecisionMakerFactory;
+import dev.zux13.entity.EntityType;
 import dev.zux13.entity.creature.Creature;
 import dev.zux13.entity.creature.Herbivore;
 import dev.zux13.entity.creature.Predator;
@@ -20,14 +20,14 @@ public class CreatureRespawnTask implements SimulationTask {
     private final EventBus eventBus;
 
     @Override
-    public void execute(Board board, BoardService boardService, SimulationSettings settings) {
-        int totalTiles = board.getWidth() * board.getHeight();
+    public void execute(BoardService boardService, SimulationSettings settings) {
+        int totalTiles = boardService.getWidth() * boardService.getHeight();
 
         int herbivoreTarget = (int) (totalTiles * settings.herbivoreDensity());
         int predatorTarget = (int) (totalTiles * settings.predatorDensity());
 
-        int currentHerbivores = boardService.getHerbivoresCount();
-        int currentPredators = boardService.getPredatorsCount();
+        int currentHerbivores = boardService.getCountOf(EntityType.HERBIVORE);
+        int currentPredators = boardService.getCountOf(EntityType.PREDATOR);
 
         int herbivoresToSpawn = Math.max(0, herbivoreTarget - currentHerbivores);
         int predatorsToSpawn = Math.max(0, predatorTarget - currentPredators);

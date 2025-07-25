@@ -1,6 +1,6 @@
 package dev.zux13.decision;
 
-import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
 import dev.zux13.board.Coordinate;
 import dev.zux13.entity.creature.Creature;
 import dev.zux13.util.CoordinateUtils;
@@ -11,9 +11,9 @@ public class RoamingHelper {
 
     private static final long PERIOD_MILLIS = 5000;
 
-    public Optional<Coordinate> findPersistentRoamTarget(Board board, Coordinate current, Creature creature) {
-        int width = board.getWidth();
-        int height = board.getHeight();
+    public Optional<Coordinate> findPersistentRoamTarget(BoardService boardService, Coordinate current, Creature creature) {
+        int width = boardService.getWidth();
+        int height = boardService.getHeight();
         int creatureHash = creature.hashCode();
         long now = System.currentTimeMillis();
 
@@ -36,7 +36,7 @@ public class RoamingHelper {
 
             if (CoordinateUtils.isWithinBounds(newX, newY, width, height)) {
                 Coordinate target = new Coordinate(newX, newY);
-                if (board.isTileEmpty(target)) {
+                if (boardService.isTileEmpty(target)) {
                     return Optional.of(target);
                 }
             }

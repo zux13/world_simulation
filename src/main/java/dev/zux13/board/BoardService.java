@@ -1,15 +1,12 @@
 package dev.zux13.board;
 
 import dev.zux13.entity.Entity;
-import dev.zux13.entity.Grass;
+import dev.zux13.entity.EntityType;
 import dev.zux13.entity.creature.Creature;
-import dev.zux13.entity.creature.Herbivore;
-import dev.zux13.entity.creature.Predator;
 import dev.zux13.util.CoordinateUtils;
 import dev.zux13.util.RandomUtils;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -19,9 +16,33 @@ public class BoardService {
 
     private final Board board;
 
+    public int getWidth() {
+        return board.getWidth();
+    }
+
+    public int getHeight() {
+        return board.getHeight();
+    }
+
+    public Optional<Entity> getEntityAt(Coordinate coordinate) {
+        return board.getEntityAt(coordinate);
+    }
+
+    public void setEntityAt(Coordinate coordinate, Entity entity) {
+        board.setEntityAt(coordinate, entity);
+    }
+
+    public void removeEntityAt(Coordinate coordinate) {
+        board.removeEntityAt(coordinate);
+    }
+
+    public boolean isTileEmpty(Coordinate coordinate) {
+        return board.isTileEmpty(coordinate);
+    }
+
     public Optional<Coordinate> findRandomEmptyCoordinate() {
         List<Coordinate> empty = CoordinateUtils.generateGrid(board.getWidth(), board.getHeight()).stream()
-                .filter(board::isTileEmpty)
+                .filter(this::isTileEmpty)
                 .toList();
 
         if (empty.isEmpty()) {
@@ -33,19 +54,19 @@ public class BoardService {
 
     public void placeEntityAtRandom(Entity entity, int count) {
         for (int i = 0; i < count; i++) {
-            findRandomEmptyCoordinate().ifPresent(coordinate -> board.setEntityAt(coordinate, entity));
+            findRandomEmptyCoordinate().ifPresent(coordinate -> setEntityAt(coordinate, entity));
         }
     }
 
     public void placeEntityAtRandom(Supplier<Entity> entitySupplier, int count) {
         for (int i = 0; i < count; i++) {
-            findRandomEmptyCoordinate().ifPresent(coordinate -> board.setEntityAt(coordinate, entitySupplier.get()));
+            findRandomEmptyCoordinate().ifPresent(coordinate -> setEntityAt(coordinate, entitySupplier.get()));
         }
     }
 
     public List<Coordinate> findEmptyNeighbors(Coordinate from) {
         return getNeighbors(from).stream()
-                .filter(board::isTileEmpty)
+                .filter(this::isTileEmpty)
                 .toList();
     }
 
@@ -57,36 +78,16 @@ public class BoardService {
         return board.getCoordinates(Creature.class);
     }
 
-    public int getGrassCount() {
-        return board.getEntities(Grass.class).size();
+    public int getCountOf(EntityType entityType) {
+        return board.getEntities(entityType.type).size();
     }
 
-    public int getHerbivoresCount() {
-        return board.getEntities(Herbivore.class).size();
+    public Optional<Coordinate> findNeighbor(EntityType entityType, Coordinate from) {
+        return findNeighborWith(entityType.type, from);
     }
 
-    public int getPredatorsCount() {
-        return board.getEntities(Predator.class).size();
-    }
-
-    public Optional<Coordinate> findNeighborHerbivore(Coordinate from) {
-        return findNeighborWith(Herbivore.class, from);
-    }
-
-    public Optional<Coordinate> findNeighborGrass(Coordinate from) {
-        return findNeighborWith(Grass.class, from);
-    }
-
-    public List<Coordinate> getVisibleGrass(Coordinate from, int radius) {
-        return getVisibleEntitiesOfType(Grass.class, from, radius);
-    }
-
-    public List<Coordinate> getVisibleHerbivores(Coordinate from, int radius) {
-        return getVisibleEntitiesOfType(Herbivore.class, from, radius);
-    }
-
-    public List<Coordinate> getVisiblePredators(Coordinate from, int radius) {
-        return getVisibleEntitiesOfType(Predator.class, from, radius);
+    public List<Coordinate> getVisible(EntityType entityType, Coordinate from, int radius) {
+        return getVisibleEntitiesOfType(entityType.type, from, radius);
     }
 
     public List<Coordinate> getNeighbors(Coordinate from) {
@@ -95,31 +96,13 @@ public class BoardService {
 
     private Optional<Coordinate> findNeighborWith(Class<? extends Entity> type, Coordinate from) {
         return getNeighbors(from).stream()
-                .filter(c -> board.getEntityAt(c).filter(type::isInstance).isPresent())
+                .filter(c -> getEntityAt(c).filter(type::isInstance).isPresent())
                 .findFirst();
     }
 
     private List<Coordinate> getVisibleEntitiesOfType(Class<? extends Entity> type, Coordinate from, int radius) {
-        List<Coordinate> result = new ArrayList<>();
-        int fromX = from.x();
-        int fromY = from.y();
-
-        for (int x = fromX - radius; x <= fromX + radius; x++) {
-            for (int y = fromY - radius; y <= fromY + radius; y++) {
-                if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight()) {
-                    continue;
-                }
-
-                Coordinate current = new Coordinate(x, y);
-                if (!CoordinateUtils.isWithinRadius(from, current, radius)) {
-                    continue;
-                }
-
-                board.getEntityAt(current)
-                        .filter(type::isInstance)
-                        .ifPresent(entity -> result.add(current));
-            }
-        }
-        return result;
+        return CoordinateUtils.getCoordinatesWithinRadius(from, radius, board.getWidth(), board.getHeight()).stream()
+                .filter(coordinate -> getEntityAt(coordinate).filter(type::isInstance).isPresent())
+                .toList();
     }
 }

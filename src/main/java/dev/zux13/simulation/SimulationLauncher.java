@@ -1,6 +1,7 @@
 package dev.zux13.simulation;
 
 import dev.zux13.board.Board;
+import dev.zux13.board.BoardService;
 import dev.zux13.command.CommandRouter;
 import dev.zux13.command.menu.MenuCommandHandler;
 import dev.zux13.command.SimulationCommandHandler;
@@ -19,12 +20,13 @@ public class SimulationLauncher {
         router.setHandler(new MenuCommandHandler(
                 settings -> {
                     Board board = new Board(settings.boardWidth(), settings.boardHeight());
+                    BoardService boardService = new BoardService(board);
                     TurnCounter counter = new TurnCounter();
                     EventBus eventBus = new EventBus();
-                    Simulation simulation = SimulationFactory.create(board, counter, settings, eventBus);
+                    Simulation simulation = SimulationFactory.create(boardService, counter, settings, eventBus);
                     router.setHandler(new SimulationCommandHandler(simulation, inputHandler::stopListening));
                     new Thread(() -> {
-                        SimulationBootstrapper.bootstrap(board, counter, settings, eventBus);
+                        SimulationBootstrapper.bootstrap(boardService, counter, settings, eventBus);
                         simulation.startSimulation();
                     }).start();
                 },

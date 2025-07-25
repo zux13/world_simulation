@@ -4,7 +4,6 @@ import dev.zux13.board.BoardService;
 import dev.zux13.decision.DecisionMaker;
 import dev.zux13.entity.Entity;
 import dev.zux13.board.Coordinate;
-import dev.zux13.board.Board;
 import lombok.Getter;
 
 @Getter
@@ -72,7 +71,7 @@ public abstract class Creature extends Entity {
         return currentHunger <= 0;
     }
 
-    public abstract void makeMove(Board board, BoardService boardService, Coordinate current);
+    public abstract void makeMove(BoardService boardService, Coordinate current);
 
     public static abstract class CreatureBuilder<T extends CreatureBuilder<T>> {
         private DecisionMaker decisionMaker;
