@@ -59,7 +59,6 @@ public class SimulationSettingsBuilder {
     private String rendererDividerChar;
     private int rendererLogWidth;
 
-
     public SimulationSettings build() {
         Theme theme = ThemeFactory.getTheme(themeName);
         return new SimulationSettings(

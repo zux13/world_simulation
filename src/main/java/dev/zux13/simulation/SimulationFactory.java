@@ -10,7 +10,10 @@ import dev.zux13.task.*;
 
 public class SimulationFactory {
 
-    public static Simulation create(BoardService boardService, TurnCounter counter, SimulationSettings settings, EventBus eventBus) {
+    public static Simulation create(BoardService boardService,
+                                    TurnCounter counter,
+                                    SimulationSettings settings,
+                                    EventBus eventBus) {
 
         DecisionMakerFactory decisionMakerFactory = new DecisionMakerFactory(
                 new AStarNavigator(),
