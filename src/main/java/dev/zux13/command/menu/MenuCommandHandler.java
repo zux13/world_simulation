@@ -1,32 +1,23 @@
 package dev.zux13.command.menu;
 
 import dev.zux13.command.CommandHandler;
-import dev.zux13.command.menu.state.MainMenuState;
-import dev.zux13.settings.SimulationSettings;
-import dev.zux13.settings.SimulationSettingsFactory;
-
-import java.util.function.Consumer;
 
 public class MenuCommandHandler implements CommandHandler {
 
-    private final MenuStateManager stateManager;
+    private final MenuManager menuManager;
+    private final MenuRenderer menuRenderer;
 
-    public MenuCommandHandler(Consumer<SimulationSettings> startSimulation,
-                              Runnable exit,
-                              SimulationSettingsFactory settingsFactory) {
-
-        this.stateManager = new MenuStateManager();
-
-        MainMenuState mainMenu = new MainMenuState(
-                stateManager, startSimulation, exit, settingsFactory
-        );
-        stateManager.setMainMenuState(mainMenu);
-        stateManager.setState(mainMenu);
+    public MenuCommandHandler(MenuManager menuManager) {
+        this.menuManager = menuManager;
+        this.menuRenderer = new MenuRenderer();
+        menuRenderer.render(menuManager.getCurrentScreen());
     }
 
     @Override
-    public void handle(String input) {
-        stateManager.handleInput(input);
+    public void handle(String command) {
+        menuManager.handleInput(command);
+        if (menuManager.isRunning()) {
+            menuRenderer.render(menuManager.getCurrentScreen());
+        }
     }
 }
-
