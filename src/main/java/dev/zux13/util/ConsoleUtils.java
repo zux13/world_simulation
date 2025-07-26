@@ -1,5 +1,8 @@
 package dev.zux13.util;
 
+import java.text.BreakIterator;
+import java.util.Locale;
+
 public final class ConsoleUtils {
 
     private ConsoleUtils() {
@@ -14,21 +17,26 @@ public final class ConsoleUtils {
     }
 
     public static int getVisualLength(String str) {
-        if (str == null || str.isEmpty()) {
-            return 0;
-        }
+        if (str == null || str.isEmpty()) return 0;
+
+        BreakIterator charIterator = BreakIterator.getCharacterInstance(Locale.getDefault());
+        charIterator.setText(str);
 
         int length = 0;
-        for (int i = 0; i < str.length(); ) {
-            int codePoint = str.codePointAt(i);
+        int start = charIterator.first();
+        for (int end = charIterator.next(); end != BreakIterator.DONE; start = end, end = charIterator.next()) {
+            String grapheme = str.substring(start, end);
+            int codePoint = grapheme.codePointAt(0);
 
-            if (!isZeroWidthMark(codePoint) && isWideCharacter(codePoint)) {
-                length += 2;
-            } else if (!isZeroWidthMark(codePoint)) {
-                length += 1;
+            if (isZeroWidthMark(codePoint)) {
+                continue;
             }
 
-            i += Character.charCount(codePoint);
+            if (isWideCharacter(codePoint) || grapheme.codePoints().count() > 1) {
+                length += 2;
+            } else {
+                length += 1;
+            }
         }
 
         return length;

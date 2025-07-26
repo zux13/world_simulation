@@ -101,7 +101,9 @@ public class ConsoleRenderer implements Renderer, EventSubscriber {
     }
 
     private String padRight(String text, int width) {
-        if (text.length() >= width) return text.substring(0, width - 1) + "…";
+        if (text.length() > width) {
+            return text.substring(0, width - 1) + "…";
+        }
         return text + " ".repeat(width - text.length());
     }
 }

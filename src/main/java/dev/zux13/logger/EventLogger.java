@@ -12,6 +12,7 @@ import dev.zux13.event.Priority;
 import dev.zux13.event.events.*;
 import dev.zux13.theme.EmojiType;
 import dev.zux13.theme.Theme;
+import dev.zux13.util.ConsoleUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -172,18 +173,23 @@ public class EventLogger implements LogProvider, EventSubscriber {
     }
 
     private String alignRight(String left, String right) {
-        int spaceCount = Math.max(1, logWidth - left.trim().length() - right.trim().length() - 1);
+        int leftLength = ConsoleUtils.getVisualLength(left.trim());
+        int rightLength = ConsoleUtils.getVisualLength(right.trim());
+
+        int spaceCount = Math.max(1, logWidth - leftLength - rightLength);
         return left.trim() + " ".repeat(spaceCount) + right.trim();
     }
 
     private String alignCenter(String text) {
-        int totalPadding = logWidth - text.length();
-        if (totalPadding <= 0) return text;
+        int totalPadding = logWidth - text.length() - 2;
+        if (totalPadding <= 0) {
+            return text;
+        }
 
         int paddingLeft = totalPadding / 2;
         int paddingRight = totalPadding - paddingLeft;
 
-        return "%s%s%s".formatted(
+        return "%s %s %s".formatted(
                 divider.repeat(paddingLeft),
                 text,
                 divider.repeat(paddingRight)
