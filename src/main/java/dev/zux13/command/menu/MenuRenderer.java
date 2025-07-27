@@ -2,12 +2,15 @@ package dev.zux13.command.menu;
 
 import dev.zux13.util.ConsoleUtils;
 
+import java.util.List;
+
 public class MenuRenderer {
 
     private static final int SCREEN_WIDTH = 44;
 
-    public void render(MenuScreen screen) {
+    public void render(MenuManager menuManager) {
         ConsoleUtils.clearConsole();
+        MenuScreen screen = menuManager.getCurrentScreen();
 
         String fullTitle = (screen.getIcon() != null ? screen.getIcon() + " " : "") + screen.getTitle();
         printTopBorder();
@@ -27,10 +30,19 @@ public class MenuRenderer {
         }
 
         if (screen.getExitItem() != null) {
-            printLeftAlignedLine("0. " + screen.getExitItem().getLabel());
+            printLeftAlignedLine("%s. %s".formatted(MenuManager.EXIT_COMMAND, screen.getExitItem().getLabel()));
         }
 
         printBottomBorder();
+
+        List<String> messages = menuManager.getMessages();
+        if (!messages.isEmpty()) {
+            for (String message : messages) {
+                System.out.printf("[INFO]: %s%n", message);
+            }
+            menuManager.clearMessages();
+        }
+
         System.out.print("> ");
         System.out.flush();
     }

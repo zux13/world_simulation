@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MenuInputHandler {
 
-    private final static String EXIT_COMMAND = "0";
     private final MenuManager menuManager;
 
     public void handleInput(String input) {
@@ -16,7 +15,7 @@ public class MenuInputHandler {
 
         String trimmedInput = input.trim();
 
-        if (EXIT_COMMAND.equals(trimmedInput) && currentScreen.getExitItem() != null) {
+        if (MenuManager.EXIT_COMMAND.equals(trimmedInput) && currentScreen.getExitItem() != null) {
             currentScreen.getExitItem().execute();
             return;
         }
@@ -33,14 +32,14 @@ public class MenuInputHandler {
             screen.getInputConsumer().accept(input);
             menuManager.pop();
         } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+            menuManager.addMessage("Error: " + e.getMessage());
         }
     }
 
     private void handleMenuScreen(MenuScreen screen, String input) {
         try {
             int choice = Integer.parseInt(input);
-            if (choice > 0 && choice <= screen.getItems().size()) {
+            if (screen.getItems() != null && choice > 0 && choice <= screen.getItems().size()) {
                 screen.getItems().get(choice - 1).execute();
             }
         } catch (NumberFormatException ignored) {

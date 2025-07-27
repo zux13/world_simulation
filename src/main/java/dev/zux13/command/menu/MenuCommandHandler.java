@@ -10,14 +10,14 @@ public class MenuCommandHandler implements CommandHandler {
     public MenuCommandHandler(MenuManager menuManager) {
         this.menuManager = menuManager;
         this.menuRenderer = new MenuRenderer();
-        menuRenderer.render(menuManager.getCurrentScreen());
+        menuRenderer.render(menuManager);
     }
 
     @Override
     public void handle(String command) {
         menuManager.handleInput(command);
         if (menuManager.isRunning()) {
-            menuRenderer.render(menuManager.getCurrentScreen());
+            menuRenderer.render(menuManager);
         }
     }
 }

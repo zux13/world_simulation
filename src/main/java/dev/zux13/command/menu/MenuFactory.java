@@ -47,8 +47,8 @@ public class MenuFactory {
 
     private MenuScreen createSettingsMenu() {
         List<SettingOption> settingOptions = List.of(
-                new SettingOption("Set Board Width", "📐", this::createSetWidthMenu),
-                new SettingOption("Set Board Height", "📏", this::createSetHeightMenu),
+                new SettingOption("Board Width", "📐", this::createSetWidthMenu),
+                new SettingOption("Board Height", "📏", this::createSetHeightMenu),
                 new SettingOption("Choose Theme", "🎨", this::createThemeSelectionMenu)
         );
 
@@ -64,16 +64,16 @@ public class MenuFactory {
             try {
                 int value = Integer.parseInt(input);
                 setter.accept(value);
-                System.out.println(title + " set to " + value);
+                menuManager.addMessage(title + " set to " + value);
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid input: " + e.getMessage());
+                menuManager.addMessage("Invalid input: " + e.getMessage());
             }
             },title, icon, new BackMenuItem(menuManager), rangeInfo);
     }
 
     private MenuScreen createSetWidthMenu() {
         return createNumericInputScreen(
-                "Enter Board Width",
+                "Board Width",
                 "📐",
                 formatRange(settingsBuilder.getMinWidth(), settingsBuilder.getMaxWidth()),
                 settingsBuilder::boardWidth
@@ -82,7 +82,7 @@ public class MenuFactory {
 
     private MenuScreen createSetHeightMenu() {
         return createNumericInputScreen(
-                "Enter Board Height",
+                "Board Height",
                 "📏",
                 formatRange(settingsBuilder.getMinHeight(), settingsBuilder.getMaxHeight()),
                 settingsBuilder::boardHeight
@@ -93,7 +93,7 @@ public class MenuFactory {
         List<MenuItem> themeItems = ThemeFactory.getAvailableThemes().stream()
                 .map(themeName -> new FunctionalMenuItem(themeName, () -> {
                     settingsBuilder.themeName(themeName);
-                    System.out.println("Theme set to " + themeName);
+                    menuManager.addMessage("Theme set to " + themeName);
                     menuManager.pop();
                 }))
                 .collect(Collectors.toList());

@@ -9,7 +9,7 @@ public class SubMenuItem implements MenuItem {
 
     private final String label;
     private final MenuManager menuManager;
-    private final Supplier<MenuScreen> subMenuSupplier;
+    private final Supplier<MenuScreen> screenSupplier;
 
     @Override
     public String getLabel() {
@@ -18,6 +18,6 @@ public class SubMenuItem implements MenuItem {
 
     @Override
     public void execute() {
-        menuManager.push(subMenuSupplier.get());
+        menuManager.push(screenSupplier.get());
     }
 }
